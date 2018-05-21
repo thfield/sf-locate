@@ -1,0 +1,4 @@
+https://data.sfgov.org/api/geospatial/p5b7-5n3h?method=export&format=GeoJSON
+https://data.sfgov.org/api/geospatial/rarb-5ahf?method=export&format=GeoJSON
+https://data.sfgov.org/api/geospatial/fhns-n8qp?method=export&format=GeoJSON
+https://data.sfgov.org/api/geospatial/8nkz-x4ny?method=export&format=GeoJSON
