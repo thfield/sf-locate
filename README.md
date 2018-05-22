@@ -18,3 +18,5 @@ geolocating street addresses in SF
 1. `$ npm run get-data`
 1. `$ npm run prep-data`
 
+## tests
+- `$npm test`
