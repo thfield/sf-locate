@@ -7,13 +7,15 @@
     "@turf/turf": "^5.1.6",
     "csv": "^3.1.0",
     "json2csv": "^4.1.2",
-    "parse-address": "^0.0.10"
+    "parse-address": "^0.0.10",
+    "uuid": "^3.2.1"
   },
   "devDependencies": {
     "jasmine": "^3.1.0"
   },
   "scripts": {
     "test": "jasmine",
+    "downloads": "./getgeo.sh && ./getdata.sh",
     "get-geo": "./getgeo.sh",
     "get-data": "./getdata.sh",
     "prep-data": "node munge.js"
