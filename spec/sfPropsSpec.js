@@ -22,7 +22,6 @@ let expected = {
 }
 
 describe('locate in SF function (with lon/lat)', function () {
-
   it('should return the expected values', function () {
     let res = sfProps([mainLibrary.lon, mainLibrary.lat], lineshapes)
     expect(res).toEqual(expected)

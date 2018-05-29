@@ -1,7 +1,8 @@
 'use strict'
 const addressParse = require('../lib/addressParse')
 
-let inputs = [{
+let inputs = [
+  {
     address: '4400 Mission Street',
     test: 'should work with a full "Street" name',
     expected: '4400 MISSION ST'
@@ -50,7 +51,7 @@ let inputs = [{
     address: 'lorem ipsum',
     test: 'should do something predictable with nonsense',
     expected: null
-  },
+  }
 ]
 
 describe('addressParse', function () {

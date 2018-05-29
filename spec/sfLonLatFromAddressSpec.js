@@ -8,37 +8,70 @@ let inputs = [
     address: '4400 Mission Street',
     zip: '94112',
     name: 'Excelsior',
-    test: 'should work with a full address',
-    expected: ['-122.43323226','37.72702233']
+    test: 'should work with a full address'
   },
   {
     address: '100 Larkin St',
     zip: '94102',
     name: 'Main Library',
-    test: 'should work with an abbreviation',
-    expected: ['-122.41585885','37.77934463']
+    test: 'should work with an abbreviation'
   },
   {
     address: '100 Larkin St.',
     zip: '94102',
     name: 'Main Library',
-    test: 'should work with an abbreviation and punctuation',
-    expected: ['-122.41585885','37.77934463']
+    test: 'should work with an abbreviation and punctuation'
   },
   {
     address: '960 4th Street',
     zip: '94158',
     name: 'Mission Bay',
-    test: 'should work with 4th Street in SF',
-    expected: ['-122.39309738','37.77536973']
+    test: 'should work with 4th Street in SF'
   },
   {
     address: '960 4th Street',
     zip: '94607',
     name: 'Somewhere in Oakland',
-    test: 'should work with 4th Street not in SF',
-    expected: [null, null]
-  },
+    test: 'should return something for a street not in SF'
+  }
+]
+let expected = [
+  {
+    address: '4400 Mission Street',
+    zip: '94112',
+    name: 'Excelsior',
+    test: 'should work with a full address',
+    lon: '-122.43323226',
+    lat: '37.72702233'
+  }, {
+    address: '100 Larkin St',
+    zip: '94102',
+    name: 'Main Library',
+    test: 'should work with an abbreviation',
+    lon: '-122.41585885',
+    lat: '37.77934463'
+  }, {
+    address: '100 Larkin St.',
+    zip: '94102',
+    name: 'Main Library',
+    test: 'should work with an abbreviation and punctuation',
+    lon: '-122.41585885',
+    lat: '37.77934463'
+  }, {
+    address: '960 4th Street',
+    zip: '94158',
+    name: 'Mission Bay',
+    test: 'should work with 4th Street in SF',
+    lon: '-122.39309738',
+    lat: '37.77536973'
+  }, {
+    address: '960 4th Street',
+    zip: '94607',
+    name: 'Somewhere in Oakland',
+    test: 'should return something for a street not in SF',
+    lon: null,
+    lat: null
+  }
 ]
 
 describe('sfLonLatFromAddress', function () {
@@ -49,7 +82,7 @@ describe('sfLonLatFromAddress', function () {
   res.forEach(function (r, i) {
     let wording = inputs[i].test
     it(wording, function () {
-      expect(r).toEqual(inputs[i].expected)
+      expect(r).toEqual(expected[i])
     })
   })
 })

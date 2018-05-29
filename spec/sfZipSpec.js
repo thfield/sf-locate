@@ -1,7 +1,8 @@
 'use strict'
 const sfZip = require('../lib/sfZip')
 
-let inputs = [{
+let inputs = [
+  {
     address: '4400 Mission Street',
     zip: '94112',
     name: 'Excelsior',
@@ -64,6 +65,13 @@ let inputs = [{
     test: 'should return true for an SF zip+4',
     expected: true
   },
+  {
+    address: '4400 Mission Street',
+    zip: '941121927',
+    name: 'Excelsior',
+    test: 'should return true for an SF zip+4 with no separator',
+    expected: true
+  }
 ]
 
 describe('sfZip', function () {

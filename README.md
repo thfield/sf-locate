@@ -1,4 +1,4 @@
-# sf-address
+# sf-address  
 geolocating street addresses in SF
 
 ### data sources
@@ -15,8 +15,17 @@ geolocating street addresses in SF
 - Parcels(?): [6b2n-v87s](https://data.sfgov.org/City-Infrastructure/Parcels-With-Planning-Department-Zoning/6b2n-v87s)
 
 ## setup
+Run once
 1. `$ npm run downloads`
 1. `$ npm run prep-data`
+This creates a lookup table of addresses in San Francisco which gets reused
 
 ## tests
 - `$npm test`
+
+## use
+```
+  const SFLocator = require('index.js')
+  let locator = new SFLocator()
+
+```
