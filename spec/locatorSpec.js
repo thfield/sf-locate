@@ -1,13 +1,13 @@
 'use strict'
 
-const SFLocator = require('./index.js')
+const SFLocator = require('../index.js')
 let Locator = new SFLocator()
 
 let inputs = [
   {
     input: '4400 Mission Street',
     test: 'find the address',
-    method: 'locate'
+    method: 'locate',
     expected: '4400 MISSION ST'
   },
   // {
@@ -57,14 +57,14 @@ let inputs = [
   // }
 ]
 
-describe('locator', function () {
-  let res = inputs.map(function (el) {
-    return Locator[el.method](el.input)
-  })
-
-  res.forEach(function (r, i) {
-    it(inputs[i].test, function () {
-      expect(r).toEqual(inputs[i].expected)
-    })
-  })
-})
+// describe('locator', function () {
+//   let res = inputs.map(function (el) {
+//     return Locator[el.method](el.input)
+//   })
+//
+//   res.forEach(function (r, i) {
+//     it(inputs[i].test, function () {
+//       expect(r).toEqual(inputs[i].expected)
+//     })
+//   })
+// })

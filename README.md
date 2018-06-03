@@ -18,7 +18,7 @@ geolocating street addresses in SF
 Run once
 1. `$ npm run downloads`
 1. `$ npm run prep-data`
-This creates a lookup table of addresses in San Francisco which gets reused
+This creates a lookup table of addresses in San Francisco which gets reused.  It will take a long time to process all the addresses, because it is inefficient.
 
 ## tests
 - `$npm test`

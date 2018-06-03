@@ -1,63 +1,43 @@
 'use strict'
-// const Json2csvParser = require('json2csv').Parser
-const fs = require('fs');
-const Json2csvTransform = require('json2csv').Transform;
-const readCsv = require('./lib/readCsv')
-// const writeStringToFile = require('./lib/writeStringToFile')
+console.time('sf-locate munging time')
+
+const fs = require('fs')
+const parse = require('csv-parse')
+const transform = require('stream-transform')
+const stringify = require('csv-stringify')
 
 const sfProps = require('./lib/sfProps')
-
 const lineshapes = require('./lib/loadLineshapes')
-// let eas = readCsv('./data/raw/sr5d-tnui.csv')
-let inputFile = './data/test.csv'
+
+// let inputFile = './data/test.csv'
+let inputFile = './data/raw/sr5d-tnui.csv'
 let outputFile = './data/addressesWithProps.csv'
 
-// try {
-//   eas = eas.map(streamAddress)
-// } catch (err) {
-//   errorHandler(err)
-// }
-//
-// function errorHandler (err) {
-//   throw err
-// }
+const input = fs.createReadStream(inputFile, { encoding: 'utf8' })
+const output = fs.createWriteStream(outputFile, { encoding: 'utf8' })
+
+let counter = 0
+let parser = parse({columns: true, delimiter: ','})
+let transformer = transform(function (record, callback) {
+  let res = assignAddressProperties(record)
+  // delete unwanted properties here
+  callback(null, res)
+  counter++
+}, {parallel: 10})
+let stringifier = stringify({header: true})
+
+input
+  .pipe(parser)
+  .pipe(transformer)
+  .pipe(stringifier)
+  .pipe(output)
+  .on('finish', () => {
+    console.log(`${counter} records processed`)
+    console.timeEnd('sf-locate munging time')
+  })
 
 function assignAddressProperties (el) {
   let point = [el.Longitude, el.Latitude]
   let props = sfProps(point, lineshapes)
   return Object.assign(el, props)
 }
-
-// function streamAddress (el) {
-//   const fields = [
-//     'Address',
-//     'Address Number',
-//     'Street Name',
-//     'Street Type',
-//     'Zipcode',
-//     'Longitude',
-//     'Latitude',
-//     'assemdist',
-//     'bartdist',
-//     'congdist',
-//     'nhood',
-//     'prec_2010',
-//     'prec_2012',
-//     'supdist',
-//     'tractce10'
-//   ]
-//   const opts = { fields }
-//   const transformOpts = { highWaterMark: 16384, encoding: 'utf-8' }
-//
-//   const input = fs.createReadStream(inputPath, { encoding: 'utf8' });
-//   const output = fs.createWriteStream(outputPath, { encoding: 'utf8' });
-//   const json2csv = new Json2csvTransform(opts, transformOpts);
-//
-//   const processor = input.pipe(json2csv).pipe(output);
-//
-//   // You can also listen for events on the conversion and see how the header or the lines are coming out.
-//   json2csv
-//     .on('header', header => console.log(header))
-//     .on('line', line => console.log(line))
-//     .on('error', err => console.log(err));
-// }
