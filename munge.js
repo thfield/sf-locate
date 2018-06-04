@@ -11,10 +11,28 @@ const lineshapes = require('./lib/loadLineshapes')
 
 // let inputFile = './data/test.csv'
 let inputFile = './data/raw/sr5d-tnui.csv'
-let outputFile = './data/addressesWithProps.csv'
+let outputFile = './data/addressesProcessed.csv'
 
 const input = fs.createReadStream(inputFile, { encoding: 'utf8' })
 const output = fs.createWriteStream(outputFile, { encoding: 'utf8' })
+
+// const fields = [
+//   'Address',
+//   'Address Number',
+//   'Street Name',
+//   'Street Type',
+//   'Zipcode',
+//   'Longitude',
+//   'Latitude',
+//   'assemdist',
+//   'bartdist',
+//   'congdist',
+//   'nhood',
+//   'prec_2010',
+//   'prec_2012',
+//   'supdist',
+//   'tractce10'
+// ]
 
 let counter = 0
 let parser = parse({columns: true, delimiter: ','})
