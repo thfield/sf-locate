@@ -3,12 +3,15 @@ Geolocating street addresses in SF
 
 ## the goal
 You have an address (or an array of addresses) in San Francisco and you want to know:
+
   - what election precinct is in it?
   - what neighborhood?
   - which census tract?
   - supervisor district?
   - ...?
+
 Only... you don't know PostGIS. You don't want to upload sensitive information to Carto.  You don't have the time to learn spacial joins.
+
 Have no fear. This will (hopefully) make your life easier.
 
 ### data sources
@@ -44,3 +47,4 @@ This creates a lookup table of addresses in San Francisco which gets reused.  It
 - make this reusable for other municipalities
 - do this in Python, R, whatever.
 - write some more tests
+s
