@@ -1,78 +1,88 @@
 'use strict'
 
-const Locator = require('../index.js')
-let SFLocator = new Locator()
+const Locator = require('../locator.js')
+let SFLocator = new Locator(true)
 
 let inputs = [
   {
     input: {address: '527 4th ave', zip: '94118'},
-    test: 'should work with a non-zeropadded numbered "ave" address',
-    method: 'findOne',
+    description: 'a non-zeropadded numbered "ave" address',
     expected: '527 04TH AVE'
   },
   {
     input: {address: '527 4th avenue', zip: '94118'},
-    test: 'should work with a non-zeropadded numbered, non-abbreviated "avenue" address',
-    method: 'findOne',
+    description: 'a non-zeropadded numbered, non-abbreviated "avenue" address',
     expected: '527 04TH AVE'
   },
   {
     input: {address: '2101 Baker Street', zip: '94115'},
-    test: 'should work with a "street" address',
-    method: 'findOne',
+    description: 'a "street" address',
     expected: '2101 BAKER ST'
   },
   {
     input: {address: '2101 baker street', zip: '94115'},
-    test: 'capitalization should not matter',
-    method: 'findOne',
+    description: 'an all lowercase address',
     expected: '2101 BAKER ST'
   },
   {
     input: {address: '2101 Baker Street'},
-    test: 'should not work without a zip code',
-    method: 'findOne',
-    expected: null
+    description: 'a valid address without zipcode',
+    expected: 'noZip'
   },
   {
     input: {address: '2101 Baker St.', zip: '94115'},
-    test: 'should work without a period after abbreviation',
-    method: 'findOne',
+    description: 'a valid address without a period after abbreviation',
     expected: '2101 BAKER ST'
   },
   {
     input: {address: '5000 Geary Boulevard', zip: '94118'},
-    test: 'should work a non-abbreviated "boulevard" address',
-    method: 'findOne',
+    description: 'a non-abbreviated "boulevard" address',
     expected: '5000 GEARY BLVD'
   },
   {
     input: {address: '26 PORTOLA DRIVE', zip: '94131'},
-    test: 'should work a non-abbreviated "drive" address',
-    method: 'findOne',
-    expected: '26 PORTOLA DRIVE'
+    description: 'a non-abbreviated "drive" address',
+    expected: '26 PORTOLA DR'
   },
   {
     input: {address: '26 PORTOLA DRIVE', zip: '94118'},
-    test: 'should not work a mismatched zip code address',
-    method: 'findOne',
-    expected: null
+    description: 'an mismatched zip code/address',
+    expected: 'unmatched'
   },
   {
     input: {address: '', zip: '94118'},
-    test: 'should not work without an address',
-    method: 'findOne',
-    expected: null
+    description: 'a zip inside SF but no address',
+    expected: 'noAddress'
   },
   {
-    input: {address: '26 PORTOLA DRIVE', zip: '94118'},
-    test: 'should not work a mismatched zip code address',
-    method: 'findOne',
-    expected: null
+    input: {address: '', zip: '12345'},
+    description: 'a zip outside SF with no address',
+    expected: 'noAddress'
+  },
+  {
+    input: {address: '123 Doesnotexist Street', zip: '94118'},
+    description: 'a non-existing street with zip inside SF',
+    expected: 'unmatched'
+  },
+  {
+    input: {address: '26 PORTOLA DRIVE', zip: '12345'},
+    description: 'an address inside SF with zip outside SF',
+    expected: 'outsideSF'
+  },
+  {
+    input: {foo: 'asdf'},
+    description: 'a nonsense input',
+    expected: 'noZip'
   }
+
+
 ]
 
 let expecteds = {
+  noZip: 'Has no zip code',
+  noAddress: 'Has no address',
+  outsideSF: 'Not an SF zip code',
+  unmatched: 'Address not found',
   '527 04TH AVE': {
     Address: '527 04TH AVE',
     Zipcode: '94118',
@@ -131,14 +141,91 @@ let expecteds = {
   }
 }
 
-describe('locator', function () {
+describe('locate.findOne', function () {
   let res = inputs.map(function (el) {
-    return Locator[el.method](el.input)
+    return SFLocator.findOne(el.input)
   })
 
   res.forEach(function (r, i) {
-    it(inputs[i].test, function () {
-      expect(r).toEqual(jasmine.objectContaining(expecteds[inputs[i].expected)])
+    it('with '.concat(inputs[i].description), function () {
+      if (typeof r === 'object') {
+        expect(r).toEqual(jasmine.objectContaining(expecteds[inputs[i].expected]))
+      } else if (typeof r === 'string') {
+        expect(r).toEqual(expecteds[inputs[i].expected])
+      }
     })
+  })
+})
+
+let several = [
+  {address: '527 4th ave', zip: '94118'},
+  {address: '2101 Baker Street', zip: '94115'},
+  {address: '5000 Geary Boulevard', zip: '94118'}
+]
+
+describe('locate.findMany', function () {
+  it('should return an array of found addresses when passed an array of valid addresses', function () {
+    let res = SFLocator.findMany(several)
+    expect(res.result).toEqual([
+      jasmine.objectContaining(expecteds['527 04TH AVE']),
+      jasmine.objectContaining(expecteds['2101 BAKER ST']),
+      jasmine.objectContaining(expecteds['5000 GEARY BLVD'])
+    ])
+  })
+
+  it('should return an array of found and not found addresses', function () {
+    let severalMore = [{address: '123 Doesnotexist Street', zip: '94118'}].concat(several)
+    let res = SFLocator.findMany(severalMore)
+    expect(res.result).toEqual([
+      expecteds.unmatched,
+      jasmine.objectContaining(expecteds['527 04TH AVE']),
+      jasmine.objectContaining(expecteds['2101 BAKER ST']),
+      jasmine.objectContaining(expecteds['5000 GEARY BLVD'])
+    ])
+  })
+
+  it('should return an array of addresses that did not match', function () {
+    let unmatching = [{address: '123 Doesnotexist Street', zip: '94118'}]
+    let severalMore = unmatching.concat(several)
+    let res = SFLocator.findMany(severalMore)
+    expect(res.unmatched).toEqual(unmatching)
+  })
+
+  it('should return an array of addresses that did not match and why', function () {
+    let unmatching = [
+      {address: '123 Doesnotexist Street', zip: '94118'},
+      {address: '123 OutsideSF Street', zip: '12345'},
+      {foo: 'asdf'}
+    ]
+    let expected = [
+      {address: '123 Doesnotexist Street', zip: '94118', reason: expecteds.unmatched},
+      {address: '123 OutsideSF Street', zip: '12345', reason: expecteds.outsideSF},
+      {foo: 'asdf', reason: expecteds.noZip}
+    ]
+    let severalMore = unmatching.concat(several)
+
+    let res = SFLocator.findMany(severalMore)
+    expect(res.unmatched).toEqual(expected)
+  })
+})
+
+describe('locate.reconsileUnmatched', function () {
+  it('should return addresses "inside SF" that didnt match', function () {
+    let unmatchingAddress = {address: '123 Doesnotexist Street', zip: '94118'}
+    let list = [unmatchingAddress].concat(several)
+    let matched = [expecteds.unmatched, {found: 'a match'}, {found: 'a match'}, {found: 'a match'}]
+    let expected = [unmatchingAddress]
+    let res = SFLocator.reconsileUnmatched(list, matched)
+
+    expect(res).toEqual(expected)
+  })
+  it('should return addresses "outside SF" that didnt match', function () {
+    let unmatchingAddress = {address: '123 OutsideSF Street', zip: '12345'}
+    let list = [unmatchingAddress].concat(several)
+    let matched = [expecteds.outsideSF, {found: 'a match'}, {found: 'a match'}, {found: 'a match'}]
+    let expected = [unmatchingAddress]
+    let res = SFLocator.reconsileUnmatched(list, matched)
+
+    expect(res).toEqual(expected)
   })
 })
