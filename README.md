@@ -37,7 +37,7 @@ This creates a lookup table of addresses in San Francisco which gets reused.  It
 - `$npm test`
 
 ## use
-```
+```javascript
   const SFLocator = require('index.js')
   let locator = new SFLocator()
 
@@ -58,15 +58,21 @@ This creates a lookup table of addresses in San Francisco which gets reused.  It
 
   let someLibraries = locator.findMany([
     {address: '100 Larkin St.', zipcode: '94102'},
-    {address: '550 37th Avenue', zipcode: '94121'}
+    {address: '550 37th Avenue', zipcode: '94121'},
+    {address: '123 Main Street', zipcode: '12345'}
   ])
   // someLibraries now looks like:
-  // {matching: [
-  //   {address: '100 LARKIN ST', assemdist: '17', ...},
-  //   {address: '550 37TH AVE', nhood: 'Outer Richmond', ...}
-  // ]}
-
+  // {
+  //   result: [
+  //     {address: '100 LARKIN ST', assemdist: '17', ...},
+  //     {address: '550 37TH AVE', nhood: 'Outer Richmond', ...},
+  //     'Not an SF zip code'
+  //   ],
+  //   unmatched: [
+  //     {address: '123 Main Street', zipcode: '12345', reason: 'Not an SF zip code'}
+  //   ]}
 ```
+
 ## improvements
 - use the Addresses-with-Units dataset (dxjs-vqsy) to get parcel/blocklot numbers
 - make the code more efficient
