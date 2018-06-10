@@ -17,13 +17,13 @@ const input = fs.createReadStream(inputFile, { encoding: 'utf8' })
 const output = fs.createWriteStream(outputFile, { encoding: 'utf8' })
 
 // const fields = [
-//   'Address',
-//   'Address Number',
-//   'Street Name',
-//   'Street Type',
-//   'Zipcode',
-//   'Longitude',
-//   'Latitude',
+//   'address',
+//   'address number',
+//   'street name',
+//   'street type',
+//   'zipcode',
+//   'longitude',
+//   'latitude',
 //   'assemdist',
 //   'bartdist',
 //   'congdist',
@@ -55,7 +55,7 @@ input
   })
 
 function assignAddressProperties (el) {
-  let point = [el.Longitude, el.Latitude]
+  let point = [el.longitude, el.latitude]
   let props = sfProps(point, lineshapes)
   return Object.assign(el, props)
 }

@@ -40,11 +40,37 @@ This creates a lookup table of addresses in San Francisco which gets reused.  It
 ```
   const SFLocator = require('index.js')
   let locator = new SFLocator()
-  // ...TBD
+
+  let mainLibrary = locator.findOne({address: '100 Larkin St.', zipcode: '94102'})
+  // mainLibrary now contains properties:
+  // {
+  //   address: '100 LARKIN ST',
+  //   zipcode: '94102',
+  //   assemdist: '17',
+  //   bartdist: '9',
+  //   congdist: '12',
+  //   nhood: 'Tenderloin',
+  //   prec_2010: '3621',
+  //   prec_2012: '7617',
+  //   supdist: '6',
+  //   tractce10: '012402'
+  // }
+
+  let someLibraries = locator.findMany([
+    {address: '100 Larkin St.', zipcode: '94102'},
+    {address: '550 37th Avenue', zipcode: '94121'}
+  ])
+  // someLibraries now looks like:
+  // {matching: [
+  //   {address: '100 LARKIN ST', assemdist: '17', ...},
+  //   {address: '550 37TH AVE', nhood: 'Outer Richmond', ...}
+  // ]}
+
 ```
 ## improvements
-- make this more efficient
-- make this reusable for other municipalities
-- do this in Python, R, whatever.
+- use the Addresses-with-Units dataset (dxjs-vqsy) to get parcel/blocklot numbers
+- make the code more efficient
+- make sure this is reusable for other municipalities
+- use any geojson files to do geocoding for whatever boundaries desired
+- do this in Python, R, whatever
 - write some more tests
-s

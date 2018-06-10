@@ -14,12 +14,12 @@ class Locator {
 
   /** @function findOne
    * @param {object} address - an object representing an address
-   * @param {string} address.zip - the zip code, 5 or 9 digit format
+   * @param {string} address.zipcode - the zip code, 5 or 9 digit format
    * @param {string} address.address - the address, without apartment numbers ie '123 Sesame St'
    */
   findOne (address) {
     // check input has all required properties
-    if (!address.zip) { return 'Has no zip code' }
+    if (!address.zipcode) { return 'Has no zip code' }
     if (!address.address) { return 'Has no address' }
     if (address.address.length === 0) { return 'Has no address' }
 
@@ -31,7 +31,7 @@ class Locator {
     let addresses = this.addresses
     // then match the normalized address to the listing of all addresses
     let res = addresses.find(function (el) {
-      return el.Address === addy && el.Zipcode === address.zip
+      return el.address === addy && el.zipcode === address.zipcode
     })
     return res || 'Address not found'
   }

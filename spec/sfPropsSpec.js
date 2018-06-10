@@ -4,7 +4,7 @@ const sfProps = require('../lib/sfProps')
 
 let mainLibrary = {
   address: '100 Larkin St.',
-  zip: '94102',
+  zipcode: '94102',
   name: 'Main Library',
   lon: '-122.4158589',
   lat: '37.77934463'

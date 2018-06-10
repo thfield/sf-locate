@@ -5,22 +5,22 @@ let SFLocator = new Locator(true)
 
 let inputs = [
   {
-    input: {address: '527 4th ave', zip: '94118'},
+    input: {address: '527 4th ave', zipcode: '94118'},
     description: 'a non-zeropadded numbered "ave" address',
     expected: '527 04TH AVE'
   },
   {
-    input: {address: '527 4th avenue', zip: '94118'},
+    input: {address: '527 4th avenue', zipcode: '94118'},
     description: 'a non-zeropadded numbered, non-abbreviated "avenue" address',
     expected: '527 04TH AVE'
   },
   {
-    input: {address: '2101 Baker Street', zip: '94115'},
+    input: {address: '2101 Baker Street', zipcode: '94115'},
     description: 'a "street" address',
     expected: '2101 BAKER ST'
   },
   {
-    input: {address: '2101 baker street', zip: '94115'},
+    input: {address: '2101 baker street', zipcode: '94115'},
     description: 'an all lowercase address',
     expected: '2101 BAKER ST'
   },
@@ -30,42 +30,42 @@ let inputs = [
     expected: 'noZip'
   },
   {
-    input: {address: '2101 Baker St.', zip: '94115'},
+    input: {address: '2101 Baker St.', zipcode: '94115'},
     description: 'a valid address without a period after abbreviation',
     expected: '2101 BAKER ST'
   },
   {
-    input: {address: '5000 Geary Boulevard', zip: '94118'},
+    input: {address: '5000 Geary Boulevard', zipcode: '94118'},
     description: 'a non-abbreviated "boulevard" address',
     expected: '5000 GEARY BLVD'
   },
   {
-    input: {address: '26 PORTOLA DRIVE', zip: '94131'},
+    input: {address: '26 PORTOLA DRIVE', zipcode: '94131'},
     description: 'a non-abbreviated "drive" address',
     expected: '26 PORTOLA DR'
   },
   {
-    input: {address: '26 PORTOLA DRIVE', zip: '94118'},
+    input: {address: '26 PORTOLA DRIVE', zipcode: '94118'},
     description: 'an mismatched zip code/address',
     expected: 'unmatched'
   },
   {
-    input: {address: '', zip: '94118'},
+    input: {address: '', zipcode: '94118'},
     description: 'a zip inside SF but no address',
     expected: 'noAddress'
   },
   {
-    input: {address: '', zip: '12345'},
+    input: {address: '', zipcode: '12345'},
     description: 'a zip outside SF with no address',
     expected: 'noAddress'
   },
   {
-    input: {address: '123 Doesnotexist Street', zip: '94118'},
+    input: {address: '123 Doesnotexist Street', zipcode: '94118'},
     description: 'a non-existing street with zip inside SF',
     expected: 'unmatched'
   },
   {
-    input: {address: '26 PORTOLA DRIVE', zip: '12345'},
+    input: {address: '26 PORTOLA DRIVE', zipcode: '12345'},
     description: 'an address inside SF with zip outside SF',
     expected: 'outsideSF'
   },
@@ -84,10 +84,10 @@ let expecteds = {
   outsideSF: 'Not an SF zip code',
   unmatched: 'Address not found',
   '527 04TH AVE': {
-    Address: '527 04TH AVE',
-    Zipcode: '94118',
-    Longitude: '-122.46229088',
-    Latitude: '37.77862614',
+    address: '527 04TH AVE',
+    zipcode: '94118',
+    longitude: '-122.46229088',
+    latitude: '37.77862614',
     assemdist: '19',
     bartdist: '8',
     congdist: '12',
@@ -98,10 +98,10 @@ let expecteds = {
     tractce10: '045100'
   },
   '2101 BAKER ST': {
-    Address: '2101 BAKER ST',
-    Zipcode: '94115',
-    Longitude: '-122.44456085',
-    Latitude: '37.79053179',
+    address: '2101 BAKER ST',
+    zipcode: '94115',
+    longitude: '-122.44456085',
+    latitude: '37.79053179',
     assemdist: '19',
     bartdist: '8',
     congdist: '12',
@@ -112,10 +112,10 @@ let expecteds = {
     tractce10: '013400'
   },
   '5000 GEARY BLVD': {
-    Address: '5000 GEARY BLVD',
-    Zipcode: '94118',
-    Longitude: '-122.47316088',
-    Latitude: '37.78085651',
+    address: '5000 GEARY BLVD',
+    zipcode: '94118',
+    longitude: '-122.47316088',
+    latitude: '37.78085651',
     assemdist: '19',
     bartdist: '8',
     congdist: '12',
@@ -126,10 +126,10 @@ let expecteds = {
     tractce10: '042602'
   },
   '26 PORTOLA DR': {
-    Address: '26 PORTOLA DR',
-    Zipcode: '94131',
-    Longitude: '-122.44398743',
-    Latitude: '37.75012393',
+    address: '26 PORTOLA DR',
+    zipcode: '94131',
+    longitude: '-122.44398743',
+    latitude: '37.75012393',
     assemdist: '17',
     bartdist: '9',
     congdist: '12',
@@ -158,9 +158,9 @@ describe('locate.findOne', function () {
 })
 
 let several = [
-  {address: '527 4th ave', zip: '94118'},
-  {address: '2101 Baker Street', zip: '94115'},
-  {address: '5000 Geary Boulevard', zip: '94118'}
+  {address: '527 4th ave', zipcode: '94118'},
+  {address: '2101 Baker Street', zipcode: '94115'},
+  {address: '5000 Geary Boulevard', zipcode: '94118'}
 ]
 
 describe('locate.findMany', function () {
@@ -174,7 +174,7 @@ describe('locate.findMany', function () {
   })
 
   it('should return an array of found and not found addresses', function () {
-    let severalMore = [{address: '123 Doesnotexist Street', zip: '94118'}].concat(several)
+    let severalMore = [{address: '123 Doesnotexist Street', zipcode: '94118'}].concat(several)
     let res = SFLocator.findMany(severalMore)
     expect(res.result).toEqual([
       expecteds.unmatched,
@@ -185,7 +185,7 @@ describe('locate.findMany', function () {
   })
 
   it('should return an array of addresses that did not match', function () {
-    let unmatching = [{address: '123 Doesnotexist Street', zip: '94118'}]
+    let unmatching = [{address: '123 Doesnotexist Street', zipcode: '94118'}]
     let severalMore = unmatching.concat(several)
     let res = SFLocator.findMany(severalMore)
     expect(res.unmatched).toEqual(unmatching)
@@ -193,13 +193,13 @@ describe('locate.findMany', function () {
 
   it('should return an array of addresses that did not match and why', function () {
     let unmatching = [
-      {address: '123 Doesnotexist Street', zip: '94118'},
-      {address: '123 OutsideSF Street', zip: '12345'},
+      {address: '123 Doesnotexist Street', zipcode: '94118'},
+      {address: '123 OutsideSF Street', zipcode: '12345'},
       {foo: 'asdf'}
     ]
     let expected = [
-      {address: '123 Doesnotexist Street', zip: '94118', reason: expecteds.unmatched},
-      {address: '123 OutsideSF Street', zip: '12345', reason: expecteds.outsideSF},
+      {address: '123 Doesnotexist Street', zipcode: '94118', reason: expecteds.unmatched},
+      {address: '123 OutsideSF Street', zipcode: '12345', reason: expecteds.outsideSF},
       {foo: 'asdf', reason: expecteds.noZip}
     ]
     let severalMore = unmatching.concat(several)
@@ -211,7 +211,7 @@ describe('locate.findMany', function () {
 
 describe('locate.reconsileUnmatched', function () {
   it('should return addresses "inside SF" that didnt match', function () {
-    let unmatchingAddress = {address: '123 Doesnotexist Street', zip: '94118'}
+    let unmatchingAddress = {address: '123 Doesnotexist Street', zipcode: '94118'}
     let list = [unmatchingAddress].concat(several)
     let matched = [expecteds.unmatched, {found: 'a match'}, {found: 'a match'}, {found: 'a match'}]
     let expected = [unmatchingAddress]
@@ -220,7 +220,7 @@ describe('locate.reconsileUnmatched', function () {
     expect(res).toEqual(expected)
   })
   it('should return addresses "outside SF" that didnt match', function () {
-    let unmatchingAddress = {address: '123 OutsideSF Street', zip: '12345'}
+    let unmatchingAddress = {address: '123 OutsideSF Street', zipcode: '12345'}
     let list = [unmatchingAddress].concat(several)
     let matched = [expecteds.outsideSF, {found: 'a match'}, {found: 'a match'}, {found: 'a match'}]
     let expected = [unmatchingAddress]

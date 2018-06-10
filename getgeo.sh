@@ -7,8 +7,8 @@ file="geosources.txt"
 cd geo
 
 for i in `cat ../sources/$file` ; do
-    foo=`basename $i`
-    id=${foo:0:9}
+  foo=`basename $i`
+  id=${foo:0:9}
   if [ -e $id.json ]; then
     echo "File exists: $id.json"
   else

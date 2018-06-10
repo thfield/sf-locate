@@ -1,7 +1,7 @@
 {
   "name": "sf-address",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "locator.js",
   "license": "MIT",
   "dependencies": {
     "@turf/turf": "^5.1.6",
