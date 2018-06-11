@@ -60,6 +60,14 @@ class Locator {
       return list[d[1]]
     })
   }
+
+  /** @function csvList
+   * @param {string} input - path to csv
+   */
+  csvList (input) {
+
+
+  }
 }
 
 module.exports = Locator
