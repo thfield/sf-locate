@@ -1,8 +1,13 @@
 'use strict'
-// const fs = require('fs')
 const readCsv = require('./lib/readCsv')
 const sfZip = require('./lib/sfZip')
 const addressParse = require('./lib/addressParse')
+
+const fs = require('fs')
+const path = require('path')
+const parse = require('csv-parse')
+const transform = require('stream-transform')
+const stringify = require('csv-stringify')
 
 class Locator {
   // t is for testing (load smaller csv file)
@@ -62,11 +67,40 @@ class Locator {
   }
 
   /** @function csvList
-   * @param {string} input - path to csv
+   * @param {string} inputFile - path to csv
    */
-  csvList (input) {
+  csvList (inputFile) {
+    let basePath = path.dirname(inputFile)
+    let baseFileName = path.basename(inputFile, '.csv')
+    let outputFile = `${basePath}/${baseFileName}-output.csv`
 
+    const unmatchedFile = `${basePath}/${baseFileName}-unmatched.csv`
+    let input
 
+    try {
+      input = fs.createReadStream(inputFile, { encoding: 'utf8' })
+    } catch (err) {
+      return new Error(`specified file ${inputFile} does not exist`)
+    }
+
+    const output = fs.createWriteStream(outputFile, { encoding: 'utf8' })
+    const unmatched = fs.createWriteStream(unmatchedFile, { encoding: 'utf8' })
+
+    let parser = parse({columns: true, delimiter: ','})
+    let transformer = transform(function (record, callback) {
+      let res = fn(record)
+      callback(null, res)
+    }, {parallel: 10})
+    let stringifier = stringify({header: true})
+
+    input
+      .pipe(parser)
+      .pipe(transformer)
+      .pipe(stringifier)
+      .pipe(output)
+      .on('finish', () => {
+        console.log(`saved to ${outputFile}`)
+      })
   }
 }
 
