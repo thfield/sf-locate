@@ -71,6 +71,20 @@ let inputs = [
     name: 'Excelsior',
     test: 'should return true for an SF zip+4 with no separator',
     expected: true
+  },
+  {
+    address: '4400 Mission Street',
+    zipcode: '  94112',
+    name: 'Excelsior',
+    test: 'should strip leading spaces from a zip code string',
+    expected: true
+  },
+  {
+    address: '4400 Mission Street',
+    zipcode: '94112 ',
+    name: 'Excelsior',
+    test: 'should strip trailing spaces from a zip code string',
+    expected: true
   }
 ]
 
