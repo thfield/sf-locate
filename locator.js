@@ -38,7 +38,7 @@ class Locator {
   searchAddress (address) {
     let self = this
     // use addressParse to normalize the address
-    let addy = addressParse.normalize(address.address)
+    let addy = addressParse.normalString(address.address)
 
     // then match the normalized address to the listing of all addresses
     return self.addresses.find(function (el) {
@@ -56,7 +56,7 @@ class Locator {
 
     let point = midpoint.obj(neighbors[0], neighbors[1])
 
-    let addy = addressParse.normalize(address.address)
+    let addy = addressParse.normalString(address.address)
     let res = Object.assign({address:addy, zipcode: address.zipcode}, point)
 
     let props = [
@@ -99,6 +99,7 @@ class Locator {
   findNextDoor (address, upDown = 'up') {
     let self = this
     let addr = address
+
     let res
     let i = 0
     do {

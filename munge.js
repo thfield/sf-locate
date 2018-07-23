@@ -57,5 +57,5 @@ input
 function assignAddressProperties (el) {
   let point = [el.longitude, el.latitude]
   let props = sfProps(point, lineshapes)
-  return Object.assign(el, props)
+  return Object.assign({}, el, props)
 }

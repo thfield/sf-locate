@@ -139,9 +139,9 @@ let inputs = [
   }
 ]
 
-describe('addressParse.normalize', function () {
+describe('addressParse.normalString', function () {
   let res = inputs.map(function (el) {
-    return addressParse.normalize(el.address)
+    return addressParse.normalString(el.address)
   })
 
   res.forEach(function (r, i) {
@@ -202,4 +202,19 @@ describe('addressParse.nextDoor', function () {
     let res = addressParse.nextDoor(address, 'down')
     expect(res).toEqual(expecteds['353 OAK ST'])
   })
+})
+
+describe('addressParse.standardize', function () {
+  let simple = {address:'123 Main Street', zipcode:'94102'}
+  let full = {address:'123 MAIN ST', zipcode:'94102', number: '123', street: 'MAIN', type: 'ST'}
+
+  it('should take a simple object and return a parsed version', function () {
+    let r = addressParse.standardize(simple)
+    expect(r).toEqual(full)
+  })
+
+  // it('should error in a reasonable way', function () {
+  //   let r = addressParse.standardize({address: 'foo'})
+  //   expect(r).toEqual(null)
+  // })
 })

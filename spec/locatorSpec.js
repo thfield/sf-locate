@@ -248,6 +248,10 @@ let notInEAS = [
 ]
 
 describe('locate.findNextDoor', function () {
+  it('should find the next highest address with an incomplete address object', function () {
+    let res = SFLocator.findNextDoor({address: '355 OAK Street', zipcode: '94102'})
+    expect(res).toEqual(jasmine.objectContaining(expecteds['357 OAK ST']))
+  })
   it('should find the next highest address by default', function () {
     let res = SFLocator.findNextDoor(notInEAS[0])
     expect(res).toEqual(jasmine.objectContaining(expecteds['357 OAK ST']))

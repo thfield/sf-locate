@@ -10,7 +10,7 @@ SFLocator.checkZipFirst = false
 
 // SFLocator.csvList('./data/realaddresses.csv')
 // head -n 20 data/realaddresses.csv > data/somerealaddresses.csv
-csvList('./data/somerealaddresses.csv')
+csvList('./data/somerealaddresses-unmatched.csv')
 
 /** @function csvList
  * @param {string} inputFile - path to csv
@@ -21,7 +21,7 @@ function csvList (inputFile) {
   const baseFileName = path.basename(inputFile, '.csv')
 
   const outputFile = `${basePath}/${baseFileName}-output.csv`
-  const unmatchedFile = `${basePath}/${baseFileName}-unmatched.csv`
+  const unmatchedFile = `${basePath}/${baseFileName}-unmatchedstill.csv`
   let input
 
   try {
@@ -37,11 +37,14 @@ function csvList (inputFile) {
 
   let parser = parse({columns: true, delimiter: ','})
   let transformer = transform(function (record, callback) {
-    let located = SFLocator.findOne(record)
+
+    // let located = SFLocator.findOne(record)
+    let located = SFLocator.searchByNeighbors(record)
+
     if (typeof located === 'object') {
       callback(null, located)
     } else {
-      unmatchedstream.write(Object.assign(record, {err: located}))
+      unmatchedstream.write(Object.assign({err: located}, record))
       callback(null, null)
     }
   }, {parallel: 10})
