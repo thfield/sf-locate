@@ -357,22 +357,22 @@ describe('locate.findMany', function () {
   })
 })
 
-// describe('locate.reconsileUnmatched', function () {
-//   it('should return addresses "inside SF" that didnt match', function () {
-//     let unmatchingAddress = {address: '123 Doesnotexist Street', zipcode: '94118'}
-//     let list = [unmatchingAddress].concat(several)
-//     let matched = [expecteds.unmatched, {found: 'a match'}, {found: 'a match'}, {found: 'a match'}]
-//     let expected = [unmatchingAddress]
-//     let res = SFLocator.reconsileUnmatched(list, matched)
-//
-//     expect(res).toEqual(expected)
-//   })
-//   it('should return addresses "outside SF" that didnt match', function () {
-//     let unmatchingAddress = {address: '123 OutsideSF Street', zipcode: '12345'}
-//     let list = [unmatchingAddress].concat(several)
-//     let matched = [expecteds.outsideSF, {found: 'a match'}, {found: 'a match'}, {found: 'a match'}]
-//     let expected = [unmatchingAddress]
-//     let res = SFLocator.reconsileUnmatched(list, matched)
-//     expect(res).toEqual(expected)
-//   })
-// })
+describe('locate.reconsileUnmatched', function () {
+  it('should return addresses "inside SF" that didnt match', function () {
+    let unmatchingAddress = {address: '123 Doesnotexist Street', zipcode: '94118'}
+    let list = [unmatchingAddress].concat(several)
+    let matched = [expecteds.unmatched, {found: 'a match'}, {found: 'a match'}, {found: 'a match'}]
+    let expected = [unmatchingAddress]
+    let res = SFLocator.reconsileUnmatched(list, matched)
+
+    expect(res).toEqual(expected)
+  })
+  it('should return addresses "outside SF" that didnt match', function () {
+    let unmatchingAddress = {address: '123 OutsideSF Street', zipcode: '12345'}
+    let list = [unmatchingAddress].concat(several)
+    let matched = [expecteds.outsideSF, {found: 'a match'}, {found: 'a match'}, {found: 'a match'}]
+    let expected = [unmatchingAddress]
+    let res = SFLocator.reconsileUnmatched(list, matched)
+    expect(res).toEqual(expected)
+  })
+})
