@@ -251,6 +251,12 @@ describe('locate.findOne', function () {
     expect(res).toEqual(expecteds.mismatchZip)
     SFLocator.checkZipFirst = true
   })
+
+  it('should keep the id property if it is passed in', function() {
+    let res = SFLocator.findOne({address: '2101 BAKER ST', zipcode: '94115', id:'asdf1234'})
+    expect(res).toEqual(jasmine.objectContaining(expecteds['2101 BAKER ST']))
+    expect(res).toEqual(jasmine.objectContaining({id:'asdf1234'}))
+  })
 })
 
 let notInEAS = [

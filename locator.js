@@ -29,7 +29,7 @@ class Locator {
       if (!sfZip(address)) { return 'Not an SF zip code' }
     }
     let res = this.searchAddress(address)
-
+    if (res && res.hasOwnProperty('address') && address.id) { res.id = address.id }
     return res || 'Address not found'
   }
 
@@ -82,7 +82,7 @@ class Locator {
     if (allsame) {
       props.forEach(p => res[p] = neighbors[0][p])
     }
-
+    if (address.id) { res.id = address.id }
     return res
   }
 

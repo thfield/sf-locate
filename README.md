@@ -14,7 +14,11 @@ Only... you don't know PostGIS. You don't want to upload sensitive information t
 
 Have no fear. This will (hopefully) make your life easier.
 
+Use the code here to run your analysis offline and locally. The tradeoff is it's not super efficient, so you'll probably have to do some manually and in batches.
+
 ### data sources
+Data comes from [DataSF](https://data.sfgov.org/)
+
 - Addresses: [sr5d-tnui](https://data.sfgov.org/Geographic-Locations-and-Boundaries/Addresses-Enterprise-Addressing-System/sr5d-tnui)
 - Addresses with units: [dxjs-vqsy](https://data.sfgov.org/Geographic-Locations-and-Boundaries/Addresses-with-Units-Enterprise-Addressing-System-/dxjs-vqsy)
 - Business locations: [g8m3-pdis](https://data.sfgov.org/Economy-and-Community/Registered-Business-Locations-San-Francisco/g8m3-pdis)
@@ -34,6 +38,7 @@ Run once
 This creates a lookup table of addresses in San Francisco which gets reused.  It will take a long time (like, 0.5-2hr or more, depending) to process all the addresses, because it is inefficient.
 
 ## tests
+Oh snap! I actually wrote tests?
 - `$npm test`
 
 ## use
@@ -72,6 +77,7 @@ This creates a lookup table of addresses in San Francisco which gets reused.  It
   //     {address: '123 Main Street', zipcode: '12345', reason: 'Not an SF zip code'}
   //   ]}
 ```
+see `example.js` for more (now with streams!)
 
 ## improvements
 - use the Addresses-with-Units dataset (dxjs-vqsy) to get parcel/blocklot numbers
