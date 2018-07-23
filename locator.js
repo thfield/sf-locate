@@ -12,6 +12,7 @@ class Locator {
     this.addresses = readCsv(inputFile)
     this.checkZipFirst = true
   }
+
   /** @function findOne - find an address
    * @param {object} address - an object representing an address
    * @param {string} address.zipcode - the zip code, 5 or 9 digit format
@@ -27,8 +28,8 @@ class Locator {
       // check for zip code to make sure it is in the city
       if (!sfZip(address)) { return 'Not an SF zip code' }
     }
-
     let res = this.searchAddress(address)
+
     return res || 'Address not found'
   }
 
@@ -41,9 +42,14 @@ class Locator {
     let addy = addressParse.normalString(address.address)
 
     // then match the normalized address to the listing of all addresses
-    return self.addresses.find(function (el) {
-      return el.address === addy && el.zipcode === address.zipcode
+    let res = self.addresses.find(function (el) {
+      return el.address === addy //&& el.zipcode === address.zipcode
     })
+    if (res) {
+      if (res.zipcode.toString() !== address.zipcode.toString()) { return 'Zip Code and Address do not match' }
+      return res
+    }
+    return null
   }
 
   /** @function searchByNeighbors - find info about an address by interpolating the neighbors
@@ -99,6 +105,9 @@ class Locator {
   findNextDoor (address, upDown = 'up') {
     let self = this
     let addr = address
+    if (!addr.number || !addr.street || !addr.type) {
+      addr = addressParse.standardize(addr)
+    }
 
     let res
     let i = 0

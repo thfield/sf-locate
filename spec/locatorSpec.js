@@ -45,14 +45,14 @@ let inputs = [
     expected: '26 PORTOLA DR'
   },
   {
-    input: {address: '26 PORTOLA DRIVE', zipcode: '94118'},
+    input: {address: '959 JACKSON ST', zipcode: '94102'},
     description: 'an address inside SF with mismatched zip inside SF',
     expected: 'mismatchZip'
   },
   {
-    input: {address: '26 PORTOLA DRIVE', zipcode: '12345'},
+    input: {address: '959 JACKSON ST', zipcode: '12345'},
     description: 'an address inside SF with zip outside SF',
-    expected: 'mismatchZip'
+    expected: 'outsideSF'
   },
   {
     input: {address: '', zipcode: '94118'},
@@ -70,10 +70,15 @@ let inputs = [
     expected: 'unmatched'
   },
   {
+    input: {address: '123 Doesnotexist Street', zipcode: '12345'},
+    description: 'a non-existing street with zip outside SF',
+    expected: 'outsideSF'
+  },
+  {
     input: {foo: 'asdf'},
     description: 'a nonsense input',
     expected: 'noZip'
-  }
+  },
 
 ]
 
@@ -232,12 +237,19 @@ describe('locate.findOne', function () {
 
   res.forEach(function (r, i) {
     it('with '.concat(inputs[i].description), function () {
-      if (typeof r === 'object') {
-        expect(r).toEqual(jasmine.objectContaining(expecteds[inputs[i].expected]))
-      } else if (typeof r === 'string') {
+      if (typeof r === 'string') {
         expect(r).toEqual(expecteds[inputs[i].expected])
+      } else if (typeof r === 'object') {
+        expect(r).toEqual(jasmine.objectContaining(expecteds[inputs[i].expected]))
       }
     })
+  })
+
+  it('with an address inside SF with zip outside SF and checkZipFirst turned off', function() {
+    SFLocator.checkZipFirst = false
+    let res = SFLocator.findOne({address: '959 JACKSON ST', zipcode: '12345'})
+    expect(res).toEqual(expecteds.mismatchZip)
+    SFLocator.checkZipFirst = true
   })
 })
 
@@ -288,7 +300,7 @@ describe ('locate.searchByNeighbors', function () {
     expect(res).toEqual(jasmine.objectContaining(expecteds['560 GROVE ST']))
   })
   it('should return a helpful error when unable to return', function () {
-    let res = SFLocator.searchByNeighbors(notInEAS[3])
+    let res = SFLocator.searchByNeighbors(notInEAS[2])
     expect(res).toEqual('Not locatable by neighboring addresses')
   })
 })
