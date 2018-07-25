@@ -382,3 +382,29 @@ describe('locate.reconsileUnmatched', function () {
     expect(res).toEqual(expected)
   })
 })
+
+describe('locate.addresses creation', function () {
+  it('should be a d3-nest', function () {
+    let baker = SFLocator.addresses.find(k => { return k.key === 'BAKER' })
+    let sutter = SFLocator.addresses.find(k => { return k.key === 'SUTTER' })
+    let lombard = SFLocator.addresses.find(k => { return k.key === 'LOMBARD' })
+    let ulloa = SFLocator.addresses.find(k => { return k.key === 'ULLOA' })
+    let filbert = SFLocator.addresses.find(k => { return k.key === 'FILBERT' })
+    expect(baker.values.length).toEqual(2)
+    expect(sutter.values.length).toEqual(2)
+    expect(lombard.values.length).toEqual(8)
+    expect(ulloa.values.length).toEqual(5)
+    expect(filbert.values.length).toEqual(13)
+
+    expect(baker.values).toContain(jasmine.objectContaining({'address number':'2101'}))
+    expect(baker.values).toContain(jasmine.objectContaining({'address number':'1030'}))
+  })
+})
+
+describe('locate.searchAddress', function () {
+  it('should find the right address', function () {
+    let baker = SFLocator.searchAddress({address: '2101 Baker Street'})
+    expect(baker).toEqual(jasmine.objectContaining({'eas baseid': '274772', 'cnn': '2624000', 'tractce10': '013400'}))
+
+  })
+})

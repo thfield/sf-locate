@@ -3,6 +3,8 @@ const readCsv = require('./lib/readCsv')
 const sfZip = require('./lib/sfZip')
 const addressParse = require('./lib/addressParse')
 const midpoint = require('./lib/midpoint')
+const d3 = require('d3-collection')
+const nestedFind = require('./lib/nestedFind')
 
 // TODO: name swap 'find' and 'search'
 class Locator {
@@ -10,6 +12,9 @@ class Locator {
   constructor (t) {
     let inputFile = t ? './data/testAddresses.csv' : './data/addressesProcessed.csv'
     this.addresses = readCsv(inputFile)
+    this.addresses = d3.nest()
+      .key(function (d) { return d['street name'] })
+      .entries(this.addresses)
     this.checkZipFirst = true
   }
 
@@ -19,16 +24,17 @@ class Locator {
    * @param {string} address.address - the address, without apartment numbers ie '123 Sesame St'
    */
   findOne (address) {
+    let self = this
     // check input has all required properties
     if (!address.zipcode) { return 'Has no zip code' }
     if (!address.address) { return 'Has no address' }
     if (address.address.length === 0) { return 'Has no address' }
 
-    if (this.checkZipFirst) {
+    if (self.checkZipFirst) {
       // check for zip code to make sure it is in the city
       if (!sfZip(address)) { return 'Not an SF zip code' }
     }
-    let res = this.searchAddress(address)
+    let res = self.searchAddress(address)
     if (res && res.hasOwnProperty('address') && address.id) { res.id = address.id }
     return res || 'Address not found'
   }
@@ -38,15 +44,23 @@ class Locator {
    */
   searchAddress (address) {
     let self = this
-    // use addressParse to normalize the address
-    let addy = addressParse.normalString(address.address)
+    // use addressParse to standardize the address
+    // TODO: should check to see if this step is necessary
+    let addy = addressParse.standardize(address)
 
     // then match the normalized address to the listing of all addresses
-    let res = self.addresses.find(function (el) {
-      return el.address === addy //&& el.zipcode === address.zipcode
+    let street = nestedFind(self.addresses, addy.street)
+    if (!street) {
+      return null
+    }
+    let res = street.find(function (el) {
+      return el.address === addy.address
     })
+
     if (res) {
-      if (res.zipcode.toString() !== address.zipcode.toString()) { return 'Zip Code and Address do not match' }
+      if (address.zipcode && res.zipcode.toString() !== address.zipcode.toString()) {
+        return 'Zip Code and Address do not match'
+      }
       return res
     }
     return null
