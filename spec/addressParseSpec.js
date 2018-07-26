@@ -205,8 +205,8 @@ describe('addressParse.nextDoor', function () {
 })
 
 describe('addressParse.standardize', function () {
-  let simple = {address:'123 Main Street', zipcode:'94102'}
-  let full = {address:'123 MAIN ST', zipcode:'94102', number: '123', street: 'MAIN', type: 'ST'}
+  let simple = {address: '123 Main Street', zipcode: '94102'}
+  let full = {address: '123 MAIN ST', zipcode: '94102', number: '123', street: 'MAIN', type: 'ST'}
 
   it('should take a simple object and return a parsed version', function () {
     let r = addressParse.standardize(simple)
@@ -217,4 +217,27 @@ describe('addressParse.standardize', function () {
   //   let r = addressParse.standardize({address: 'foo'})
   //   expect(r).toEqual(null)
   // })
+})
+
+describe('addressParse.fromString', function () {
+  it('should error on notastring', function () {
+    let anObject = {address: '123 Main Street, San Francisco, CA 94102'}
+    expect( function(){ addressParse.fromString(anObject) })
+      .toThrow(new Error('input to method fromString must be a string'))
+  })
+
+  it('should take a string and return a parsed object', function () {
+    let input = '123 Main Street, San Francisco, CA 94102'
+    let actual = addressParse.fromString(input)
+    let expected = {address: '123 MAIN ST', zipcode: '94102', number: '123', street: 'MAIN', type: 'ST'}
+
+    expect(actual).toEqual(jasmine.objectContaining(expected))
+  })
+
+  it('should do something with an address not containing a street type', function () {
+    let act = addressParse.fromString('123 Broadway, San Francisco, CA 94102')
+    let exp = {address: '123 BROADWAY', zipcode: '94102', number: '123', street: 'BROADWAY'}
+    expect(act).toEqual(jasmine.objectContaining(exp))
+  })
+
 })
