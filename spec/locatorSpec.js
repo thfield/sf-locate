@@ -77,7 +77,7 @@ let inputs = [
   {
     input: {foo: 'asdf'},
     description: 'a nonsense input',
-    expected: 'noZip'
+    expected: 'noAddress'
   },
 
 ]
@@ -230,6 +230,15 @@ let expecteds = {
   }
 }
 
+// describe('one off', function () {
+//   it('should work', function () {
+//     let input =  {address: '959 JACKSON ST', zipcode: '94102'}
+//     let expected = expecteds['mismatchZip']
+//     let actual = SFLocator.findOne(input)
+//     expect(actual).toEqual(expected)
+//   })
+// })
+
 describe('locate.findOne', function () {
   let res = inputs.map(function (el) {
     return SFLocator.findOne(el.input)
@@ -245,11 +254,21 @@ describe('locate.findOne', function () {
     })
   })
 
-  it('with an address inside SF with zip outside SF and checkZipFirst turned off', function() {
-    SFLocator.checkZipFirst = false
-    let res = SFLocator.findOne({address: '959 JACKSON ST', zipcode: '12345'})
+  it('should work with an object or string', function () {
+    let inputObject = {address: '527 4th ave', zipcode: '94118'}
+    let inputString = '527 4th ave, 94118'
+    let exp = '527 04TH AVE'
+    let actObj = SFLocator.findOne(inputObject)
+    let actStr = SFLocator.findOne(inputString)
+
+    let expected = jasmine.objectContaining(expecteds[exp])
+    expect(actObj).toEqual(expected)
+    expect(actStr).toEqual(expected)
+  })
+
+  it('with an address inside SF with zip outside SF and ignoring sf zip code requirement', function() {
+    let res = SFLocator.findOne({address: '959 JACKSON ST', zipcode: '12345'}, {ignoreSFZip: true})
     expect(res).toEqual(expecteds.mismatchZip)
-    SFLocator.checkZipFirst = true
   })
 
   it('should keep the id property if it is passed in', function() {
@@ -354,7 +373,7 @@ describe('locate.findMany', function () {
     let expected = [
       {address: '123 Doesnotexist Street', zipcode: '94118', reason: expecteds.unmatched},
       {address: '123 OutsideSF Street', zipcode: '12345', reason: expecteds.outsideSF},
-      {foo: 'asdf', reason: expecteds.noZip}
+      {foo: 'asdf', reason: expecteds.noAddress}
     ]
     let severalMore = unmatching.concat(several)
 
@@ -384,7 +403,7 @@ describe('locate.reconsileUnmatched', function () {
 })
 
 describe('locate.addresses creation', function () {
-  it('should be a d3-nest', function () {
+  it('should be a d3-collection nest().entries() object', function () {
     let baker = SFLocator.addresses.find(k => { return k.key === 'BAKER' })
     let sutter = SFLocator.addresses.find(k => { return k.key === 'SUTTER' })
     let lombard = SFLocator.addresses.find(k => { return k.key === 'LOMBARD' })

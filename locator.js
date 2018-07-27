@@ -7,59 +7,77 @@ const d3 = require('d3-collection')
 const nestedFind = require('./lib/nestedFind')
 
 // TODO: name swap 'find' and 'search'
+// TODO: throw errors instead of returning null
+
 class Locator {
   // t is for testing (load smaller csv file, don't write files)
   constructor (t) {
-    let inputFile = t ? './data/testAddresses.csv' : './data/addressesProcessed.csv'
+    let inputFile = t ? './spec/testAddresses.csv' : './data/addressesProcessed.csv'
     this.addresses = readCsv(inputFile)
+    // TODO: use a nested object alter nestedFind to detect type
     this.addresses = d3.nest()
       .key(function (d) { return d['street name'] })
       .entries(this.addresses)
-    this.checkZipFirst = true
   }
 
   /** @function findOne - find an address
-   * @param {object} address - an object representing an address
+   * @param {object | string} address - an object (or string) representing an address
    * @param {string} address.zipcode - the zip code, 5 or 9 digit format
    * @param {string} address.address - the address, without apartment numbers ie '123 Sesame St'
+   * @param {object} options
+   * @param {boolean} options.ignoreZip - ignore the zipcode when checking
+   * @param {boolean} options.ignoreSFZip - don't check to see if zip is within SF
+   * @param {boolean} options.ignoreZipMismatch - ignore if the zipcode doesn't match address
    */
-  findOne (address) {
+  findOne (address, options = {}) {
     let self = this
+    if (typeof address === 'string') {
+      address = addressParse.fromString(address)
+    }
+
     // check input has all required properties
-    if (!address.zipcode) { return 'Has no zip code' }
     if (!address.address) { return 'Has no address' }
     if (address.address.length === 0) { return 'Has no address' }
 
-    if (self.checkZipFirst) {
+    if (options.ignoreZip !== true) {
+      if (!address.zipcode) { return 'Has no zip code' }
+    }
+    if (options.ignoreSFZip !== true) {
       // check for zip code to make sure it is in the city
       if (!sfZip(address)) { return 'Not an SF zip code' }
     }
-    let res = self.searchAddress(address)
+
+    let res = self.searchAddress(address, options)
     if (res && res.hasOwnProperty('address') && address.id) { res.id = address.id }
     return res || 'Address not found'
   }
 
   /** @function searchAddress - search for address from the listing
    * @param {object} address - an object representing an address
+   * @param {object} options
+   * @param {boolean} options.ignoreZipMismatch - ignore if the zipcode doesn't match address
    */
-  searchAddress (address) {
+  searchAddress (address, options = {}) {
     let self = this
     // use addressParse to standardize the address
     // TODO: should check to see if this step is necessary
     let addy = addressParse.standardize(address)
-
     // then match the normalized address to the listing of all addresses
     let street = nestedFind(self.addresses, addy.street)
     if (!street) {
       return null
     }
     let res = street.find(function (el) {
-      return el.address === addy.address
+      return (el['address number'] === addy.number &&
+        el['street name'] === addy.street &&
+        el['street type'] === addy.type
+      )
     })
-
     if (res) {
-      if (address.zipcode && res.zipcode.toString() !== address.zipcode.toString()) {
-        return 'Zip Code and Address do not match'
+      if (options.ignoreZipMismatch !== true) {
+        if (address.zipcode && res.zipcode.toString() !== address.zipcode.toString()) {
+          return 'Zip Code and Address do not match'
+        }
       }
       return res
     }
