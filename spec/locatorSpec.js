@@ -240,190 +240,200 @@ let expecteds = {
 // })
 
 describe('locate.findOne', function () {
-  let res = inputs.map(function (el) {
-    return SFLocator.findOne(el.input)
-  })
+  // let res = inputs.map(function (el) {
+  //   return SFLocator.findOne(el.input)
+  // })
+  //
+  // res.forEach(function (r, i) {
+  //   it('with '.concat(inputs[i].description), function () {
+  //     if (typeof r === 'string') {
+  //       expect(r).toEqual(expecteds[inputs[i].expected])
+  //     } else if (typeof r === 'object') {
+  //       expect(r).toEqual(jasmine.objectContaining(expecteds[inputs[i].expected]))
+  //     }
+  //   })
+  // })
+  //
+  // it('should work with an object or string', function () {
+  //   let inputObject = {address: '527 4th ave', zipcode: '94118'}
+  //   let inputString = '527 4th ave, 94118'
+  //   let exp = '527 04TH AVE'
+  //   let actObj = SFLocator.findOne(inputObject)
+  //   let actStr = SFLocator.findOne(inputString)
+  //
+  //   let expected = jasmine.objectContaining(expecteds[exp])
+  //   expect(actObj).toEqual(expected)
+  //   expect(actStr).toEqual(expected)
+  // })
+  //
+  // it('with an address inside SF with zip outside SF and ignoring sf zip code requirement', function() {
+  //   let res = SFLocator.findOne({address: '959 JACKSON ST', zipcode: '12345'}, {ignoreSFZip: true})
+  //   expect(res).toEqual(expecteds.mismatchZip)
+  // })
+  //
+  // it('should keep the id property if it is passed in', function () {
+  //   let res = SFLocator.findOne({address: '2101 BAKER ST', zipcode: '94115', id:'asdf1234'})
+  //   expect(res).toEqual(jasmine.objectContaining(expecteds['2101 BAKER ST']))
+  //   expect(res).toEqual(jasmine.objectContaining({id:'asdf1234'}))
+  // })
 
-  res.forEach(function (r, i) {
-    it('with '.concat(inputs[i].description), function () {
-      if (typeof r === 'string') {
-        expect(r).toEqual(expecteds[inputs[i].expected])
-      } else if (typeof r === 'object') {
-        expect(r).toEqual(jasmine.objectContaining(expecteds[inputs[i].expected]))
-      }
-    })
-  })
-
-  it('should work with an object or string', function () {
-    let inputObject = {address: '527 4th ave', zipcode: '94118'}
-    let inputString = '527 4th ave, 94118'
-    let exp = '527 04TH AVE'
-    let actObj = SFLocator.findOne(inputObject)
-    let actStr = SFLocator.findOne(inputString)
-
-    let expected = jasmine.objectContaining(expecteds[exp])
-    expect(actObj).toEqual(expected)
-    expect(actStr).toEqual(expected)
-  })
-
-  it('with an address inside SF with zip outside SF and ignoring sf zip code requirement', function() {
-    let res = SFLocator.findOne({address: '959 JACKSON ST', zipcode: '12345'}, {ignoreSFZip: true})
-    expect(res).toEqual(expecteds.mismatchZip)
-  })
-
-  it('should keep the id property if it is passed in', function() {
-    let res = SFLocator.findOne({address: '2101 BAKER ST', zipcode: '94115', id:'asdf1234'})
-    expect(res).toEqual(jasmine.objectContaining(expecteds['2101 BAKER ST']))
-    expect(res).toEqual(jasmine.objectContaining({id:'asdf1234'}))
-  })
-})
-
-let notInEAS = [
-  {address: '355 OAK Street', number: '355', street: 'OAK', type: 'ST', zipcode: '94102'},
-  {address: '560 GROVE St', number: '560', street: 'GROVE', type: 'ST', zipcode: '94102'},
-  {address: '123 Doesnotexist Street', number: '123', street: 'DOESNOTEXIST', type: 'ST', zipcode: '94118'}
-]
-
-describe('locate.findNextDoor', function () {
-  it('should find the next highest address with an incomplete address object', function () {
-    let res = SFLocator.findNextDoor({address: '355 OAK Street', zipcode: '94102'})
-    expect(res).toEqual(jasmine.objectContaining(expecteds['357 OAK ST']))
-  })
-  it('should find the next highest address by default', function () {
-    let res = SFLocator.findNextDoor(notInEAS[0])
-    expect(res).toEqual(jasmine.objectContaining(expecteds['357 OAK ST']))
-  })
-
-  it('should find the next highest address when asked', function () {
-    let res = SFLocator.findNextDoor(notInEAS[0], 'up')
-    expect(res).toEqual(jasmine.objectContaining(expecteds['357 OAK ST']))
-  })
-
-  it('should find the next lowest address', function () {
-    let res = SFLocator.findNextDoor(notInEAS[0], 'down')
-    expect(res).toEqual(jasmine.objectContaining(expecteds['353 OAK ST']))
-  })
-
-  it('should find the next highest address when difference more than 2', function () {
-    let res = SFLocator.findNextDoor(notInEAS[1], 'up')
-    expect(res).toEqual(jasmine.objectContaining(expecteds['564 GROVE ST']))
-  })
-
-  it('should find the next lowest address when difference more than 2', function () {
-    let res = SFLocator.findNextDoor(notInEAS[1], 'down')
-    expect(res).toEqual(jasmine.objectContaining(expecteds['554 GROVE ST']))
+  it('should report how the match was made', function () {
+    let directly = SFLocator.findone(inputs[0])
+    expect(directly).toEqual(jasmine.objectContaining({method: 'EAS match: number, street, type, zip'}))
+    // directly
+    // neighbor interpolation
+    // ignoring street type
+    // ignoring zipcode match
+    // ignoring zipcode and street type
   })
 })
-
-describe ('locate.searchByNeighbors', function () {
-  it('should return an object with interpolated data using neighbors 2 numbers apart', function () {
-    let res = SFLocator.searchByNeighbors(notInEAS[0])
-    expect(res).toEqual(jasmine.objectContaining(expecteds['355 OAK ST']))
-  })
-  it('should return an object with interpolated data using neighbors 10 numbers apart', function () {
-    let res = SFLocator.searchByNeighbors(notInEAS[1])
-    expect(res).toEqual(jasmine.objectContaining(expecteds['560 GROVE ST']))
-  })
-  it('should return a helpful error when unable to return', function () {
-    let res = SFLocator.searchByNeighbors(notInEAS[2])
-    expect(res).toEqual('Not locatable by neighboring addresses')
-  })
-})
-
-let several = [
-  {address: '527 4th ave', zipcode: '94118'},
-  {address: '2101 Baker Street', zipcode: '94115'},
-  {address: '5000 Geary Boulevard', zipcode: '94118'}
-]
-
-describe('locate.findMany', function () {
-  it('should return an array of found addresses when passed an array of valid addresses', function () {
-    let res = SFLocator.findMany(several)
-    expect(res.result).toEqual([
-      jasmine.objectContaining(expecteds['527 04TH AVE']),
-      jasmine.objectContaining(expecteds['2101 BAKER ST']),
-      jasmine.objectContaining(expecteds['5000 GEARY BLVD'])
-    ])
-  })
-
-  it('should return an array of found and not found addresses', function () {
-    let severalMore = [{address: '123 Doesnotexist Street', zipcode: '94118'}].concat(several)
-    let res = SFLocator.findMany(severalMore)
-    expect(res.result).toEqual([
-      expecteds.unmatched,
-      jasmine.objectContaining(expecteds['527 04TH AVE']),
-      jasmine.objectContaining(expecteds['2101 BAKER ST']),
-      jasmine.objectContaining(expecteds['5000 GEARY BLVD'])
-    ])
-  })
-
-  it('should return an array of addresses that did not match', function () {
-    let unmatching = [{address: '123 Doesnotexist Street', zipcode: '94118'}]
-    let severalMore = unmatching.concat(several)
-    let res = SFLocator.findMany(severalMore)
-    expect(res.unmatched).toEqual(unmatching)
-  })
-
-  it('should return an array of addresses that did not match and why', function () {
-    let unmatching = [
-      {address: '123 Doesnotexist Street', zipcode: '94118'},
-      {address: '123 OutsideSF Street', zipcode: '12345'},
-      {foo: 'asdf'}
-    ]
-    let expected = [
-      {address: '123 Doesnotexist Street', zipcode: '94118', reason: expecteds.unmatched},
-      {address: '123 OutsideSF Street', zipcode: '12345', reason: expecteds.outsideSF},
-      {foo: 'asdf', reason: expecteds.noAddress}
-    ]
-    let severalMore = unmatching.concat(several)
-
-    let res = SFLocator.findMany(severalMore)
-    expect(res.unmatched).toEqual(expected)
-  })
-})
-
-describe('locate.reconsileUnmatched', function () {
-  it('should return addresses "inside SF" that didnt match', function () {
-    let unmatchingAddress = {address: '123 Doesnotexist Street', zipcode: '94118'}
-    let list = [unmatchingAddress].concat(several)
-    let matched = [expecteds.unmatched, {found: 'a match'}, {found: 'a match'}, {found: 'a match'}]
-    let expected = [unmatchingAddress]
-    let res = SFLocator.reconsileUnmatched(list, matched)
-
-    expect(res).toEqual(expected)
-  })
-  it('should return addresses "outside SF" that didnt match', function () {
-    let unmatchingAddress = {address: '123 OutsideSF Street', zipcode: '12345'}
-    let list = [unmatchingAddress].concat(several)
-    let matched = [expecteds.outsideSF, {found: 'a match'}, {found: 'a match'}, {found: 'a match'}]
-    let expected = [unmatchingAddress]
-    let res = SFLocator.reconsileUnmatched(list, matched)
-    expect(res).toEqual(expected)
-  })
-})
-
-describe('locate.addresses creation', function () {
-  it('should be a d3-collection nest().entries() object', function () {
-    let baker = SFLocator.addresses.find(k => { return k.key === 'BAKER' })
-    let sutter = SFLocator.addresses.find(k => { return k.key === 'SUTTER' })
-    let lombard = SFLocator.addresses.find(k => { return k.key === 'LOMBARD' })
-    let ulloa = SFLocator.addresses.find(k => { return k.key === 'ULLOA' })
-    let filbert = SFLocator.addresses.find(k => { return k.key === 'FILBERT' })
-    expect(baker.values.length).toEqual(2)
-    expect(sutter.values.length).toEqual(2)
-    expect(lombard.values.length).toEqual(8)
-    expect(ulloa.values.length).toEqual(5)
-    expect(filbert.values.length).toEqual(13)
-
-    expect(baker.values).toContain(jasmine.objectContaining({'address number':'2101'}))
-    expect(baker.values).toContain(jasmine.objectContaining({'address number':'1030'}))
-  })
-})
-
-describe('locate.searchAddress', function () {
-  it('should find the right address', function () {
-    let baker = SFLocator.searchAddress({address: '2101 Baker Street'})
-    expect(baker).toEqual(jasmine.objectContaining({'eas baseid': '274772', 'cnn': '2624000', 'tractce10': '013400'}))
-
-  })
-})
+//
+// let notInEAS = [
+//   {address: '355 OAK Street', number: '355', street: 'OAK', type: 'ST', zipcode: '94102'},
+//   {address: '560 GROVE St', number: '560', street: 'GROVE', type: 'ST', zipcode: '94102'},
+//   {address: '123 Doesnotexist Street', number: '123', street: 'DOESNOTEXIST', type: 'ST', zipcode: '94118'}
+// ]
+//
+// describe('locate.findNextDoor', function () {
+//   it('should find the next highest address with an incomplete address object', function () {
+//     let res = SFLocator.findNextDoor({address: '355 OAK Street', zipcode: '94102'})
+//     expect(res).toEqual(jasmine.objectContaining(expecteds['357 OAK ST']))
+//   })
+//   it('should find the next highest address by default', function () {
+//     let res = SFLocator.findNextDoor(notInEAS[0])
+//     expect(res).toEqual(jasmine.objectContaining(expecteds['357 OAK ST']))
+//   })
+//
+//   it('should find the next highest address when asked', function () {
+//     let res = SFLocator.findNextDoor(notInEAS[0], 'up')
+//     expect(res).toEqual(jasmine.objectContaining(expecteds['357 OAK ST']))
+//   })
+//
+//   it('should find the next lowest address', function () {
+//     let res = SFLocator.findNextDoor(notInEAS[0], 'down')
+//     expect(res).toEqual(jasmine.objectContaining(expecteds['353 OAK ST']))
+//   })
+//
+//   it('should find the next highest address when difference more than 2', function () {
+//     let res = SFLocator.findNextDoor(notInEAS[1], 'up')
+//     expect(res).toEqual(jasmine.objectContaining(expecteds['564 GROVE ST']))
+//   })
+//
+//   it('should find the next lowest address when difference more than 2', function () {
+//     let res = SFLocator.findNextDoor(notInEAS[1], 'down')
+//     expect(res).toEqual(jasmine.objectContaining(expecteds['554 GROVE ST']))
+//   })
+// })
+//
+// describe ('locate.searchByNeighbors', function () {
+//   it('should return an object with interpolated data using neighbors 2 numbers apart', function () {
+//     let res = SFLocator.searchByNeighbors(notInEAS[0])
+//     expect(res).toEqual(jasmine.objectContaining(expecteds['355 OAK ST']))
+//   })
+//   it('should return an object with interpolated data using neighbors 10 numbers apart', function () {
+//     let res = SFLocator.searchByNeighbors(notInEAS[1])
+//     expect(res).toEqual(jasmine.objectContaining(expecteds['560 GROVE ST']))
+//   })
+//   it('should return a helpful error when unable to return', function () {
+//     let res = SFLocator.searchByNeighbors(notInEAS[2])
+//     expect(res).toEqual('Not locatable by neighboring addresses')
+//   })
+// })
+//
+// let several = [
+//   {address: '527 4th ave', zipcode: '94118'},
+//   {address: '2101 Baker Street', zipcode: '94115'},
+//   {address: '5000 Geary Boulevard', zipcode: '94118'}
+// ]
+//
+// describe('locate.findMany', function () {
+//   it('should return an array of found addresses when passed an array of valid addresses', function () {
+//     let res = SFLocator.findMany(several)
+//     expect(res.result).toEqual([
+//       jasmine.objectContaining(expecteds['527 04TH AVE']),
+//       jasmine.objectContaining(expecteds['2101 BAKER ST']),
+//       jasmine.objectContaining(expecteds['5000 GEARY BLVD'])
+//     ])
+//   })
+//
+//   it('should return an array of found and not found addresses', function () {
+//     let severalMore = [{address: '123 Doesnotexist Street', zipcode: '94118'}].concat(several)
+//     let res = SFLocator.findMany(severalMore)
+//     expect(res.result).toEqual([
+//       expecteds.unmatched,
+//       jasmine.objectContaining(expecteds['527 04TH AVE']),
+//       jasmine.objectContaining(expecteds['2101 BAKER ST']),
+//       jasmine.objectContaining(expecteds['5000 GEARY BLVD'])
+//     ])
+//   })
+//
+//   it('should return an array of addresses that did not match', function () {
+//     let unmatching = [{address: '123 Doesnotexist Street', zipcode: '94118'}]
+//     let severalMore = unmatching.concat(several)
+//     let res = SFLocator.findMany(severalMore)
+//     expect(res.unmatched).toEqual(unmatching)
+//   })
+//
+//   it('should return an array of addresses that did not match and why', function () {
+//     let unmatching = [
+//       {address: '123 Doesnotexist Street', zipcode: '94118'},
+//       {address: '123 OutsideSF Street', zipcode: '12345'},
+//       {foo: 'asdf'}
+//     ]
+//     let expected = [
+//       {address: '123 Doesnotexist Street', zipcode: '94118', reason: expecteds.unmatched},
+//       {address: '123 OutsideSF Street', zipcode: '12345', reason: expecteds.outsideSF},
+//       {foo: 'asdf', reason: expecteds.noAddress}
+//     ]
+//     let severalMore = unmatching.concat(several)
+//
+//     let res = SFLocator.findMany(severalMore)
+//     expect(res.unmatched).toEqual(expected)
+//   })
+// })
+//
+// describe('locate.reconsileUnmatched', function () {
+//   it('should return addresses "inside SF" that didnt match', function () {
+//     let unmatchingAddress = {address: '123 Doesnotexist Street', zipcode: '94118'}
+//     let list = [unmatchingAddress].concat(several)
+//     let matched = [expecteds.unmatched, {found: 'a match'}, {found: 'a match'}, {found: 'a match'}]
+//     let expected = [unmatchingAddress]
+//     let res = SFLocator.reconsileUnmatched(list, matched)
+//
+//     expect(res).toEqual(expected)
+//   })
+//   it('should return addresses "outside SF" that didnt match', function () {
+//     let unmatchingAddress = {address: '123 OutsideSF Street', zipcode: '12345'}
+//     let list = [unmatchingAddress].concat(several)
+//     let matched = [expecteds.outsideSF, {found: 'a match'}, {found: 'a match'}, {found: 'a match'}]
+//     let expected = [unmatchingAddress]
+//     let res = SFLocator.reconsileUnmatched(list, matched)
+//     expect(res).toEqual(expected)
+//   })
+// })
+//
+// describe('locate.addresses creation', function () {
+//   it('should be a d3-collection nest().entries() object', function () {
+//     let baker = SFLocator.addresses.find(k => { return k.key === 'BAKER' })
+//     let sutter = SFLocator.addresses.find(k => { return k.key === 'SUTTER' })
+//     let lombard = SFLocator.addresses.find(k => { return k.key === 'LOMBARD' })
+//     let ulloa = SFLocator.addresses.find(k => { return k.key === 'ULLOA' })
+//     let filbert = SFLocator.addresses.find(k => { return k.key === 'FILBERT' })
+//     expect(baker.values.length).toEqual(2)
+//     expect(sutter.values.length).toEqual(2)
+//     expect(lombard.values.length).toEqual(8)
+//     expect(ulloa.values.length).toEqual(5)
+//     expect(filbert.values.length).toEqual(13)
+//
+//     expect(baker.values).toContain(jasmine.objectContaining({'address number':'2101'}))
+//     expect(baker.values).toContain(jasmine.objectContaining({'address number':'1030'}))
+//   })
+// })
+//
+// describe('locate.searchAddress', function () {
+//   it('should find the right address', function () {
+//     let baker = SFLocator.searchAddress({address: '2101 Baker Street'})
+//     expect(baker).toEqual(jasmine.objectContaining({'eas baseid': '274772', 'cnn': '2624000', 'tractce10': '013400'}))
+//
+//   })
+// })
