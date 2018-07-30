@@ -39,6 +39,11 @@ let parser = parse({columns: true, delimiter: ','})
 let transformer = transform(function (record, callback) {
   let res = assignAddressProperties(record)
   // delete unwanted properties here
+  // todo: change these property names:  
+  //   'address number' => 'number'
+  //   'street name' => 'street'
+  //   'street type' => 'type'
+  
   callback(null, res)
   counter++
 }, {parallel: 10})
