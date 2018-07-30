@@ -63,18 +63,24 @@ class Locator {
 
     let res = self.searchAddress(address, options)
 
-    if (res && typeof res === 'object') {
-      if (res.hasOwnProperty('address') && address.id) { res.id = address.id }
-
-      // report how match was made
-      let ignored = Object.keys(options).filter(k => options[k] === true)
-
-      ignored = ignored.length > 0 ? ignored.join(', ') : 'nothing'
-      ignored = ignored.replace(/ignore/g, '')
-      res.method = `match ignored ${ignored}`
+    if (res.message === 'Address not found method searchAddress') {
+      return new Error('Address not found method findOne')
     }
 
-    return res || new Error('Address not found method findOne')
+    if (res.hasOwnProperty('address') && address.id) { res.id = address.id }
+
+    // report how match was made
+    let ignored = Object.keys(options).filter(k => options[k] === true)
+
+    if ( ignored.length > 0 ) {
+      ignored = ignored.join(', ').replace(/ignore/g, '')
+      res.method = `match ignored ${ignored}`
+    } else {
+      res.method = 'direct match with EAS listing'
+    }
+
+
+    return res
   }
 
   /** @function searchAddress - search for address from the listing
@@ -121,7 +127,7 @@ class Locator {
     let self = this
     let neighbors = [self.findNextDoor(address, 'up'), self.findNextDoor(address, 'down')]
 
-    if (neighbors.some(d => d instanceof Error)) return new Error('Not locatable by neighboring addresses')
+    if (neighbors.some(d => d instanceof Error)) throw new Error('Not locatable by neighboring addresses')
 
     let point = midpoint.obj(neighbors[0], neighbors[1])
 
@@ -146,6 +152,7 @@ class Locator {
       props.forEach(p => res[p] = neighbors[0][p])
     }
     // if (address.id) { res.id = address.id }
+    res.method = `match by neighboring interpolation`
     return res
   }
 

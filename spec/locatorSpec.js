@@ -417,7 +417,7 @@ describe('locate.findOne', function () {
     }
 
     let directly = SFLocator.findOne(addr)
-    expect(directly).toEqual(jasmine.objectContaining({method: 'match ignored nothing'}))
+    expect(directly).toEqual(jasmine.objectContaining({method: 'direct match with EAS listing'}))
 
     // ignoring street type
     let ignoreStreetType = SFLocator.findOne({number: '730', street: 'BROADWAY', zipcode: '94133'}, {ignoreStreetType: true})
@@ -432,8 +432,8 @@ describe('locate.findOne', function () {
     expect(ignoreStreetTypeAndZip).toEqual(jasmine.objectContaining({method: 'match ignored Zip, StreetType'}))
 
     // neighbor interpolation
-    // let interpolation = SFLocator.findOne({number: '355', street: 'OAK', type: 'ST', zipcode: '94102'})
-    // expect(interpolation).toEqual(jasmine.objectContaining({method: 'match using neighboring address interpolation'}))
+    let interpolation = SFLocator.searchByNeighbors({number: '355', street: 'OAK', type: 'ST', zipcode: '94102'})
+    expect(interpolation).toEqual(jasmine.objectContaining({method: 'match by neighboring interpolation'}))
   })
 })
 
@@ -483,9 +483,9 @@ describe ('locate.searchByNeighbors', function () {
     let res = SFLocator.searchByNeighbors(notInEAS[1])
     expect(res).toEqual(jasmine.objectContaining(expecteds['560 GROVE ST']))
   })
-  it('should return a helpful error when unable to return', function () {
-    let res = SFLocator.searchByNeighbors(notInEAS[2])
-    expect(res).toEqual(new Error('Not locatable by neighboring addresses'))
+  it('should throw a helpful error when unable to return', function () {
+    expect( function(){ SFLocator.searchByNeighbors(notInEAS[2]) } )
+          .toThrow(new Error('Not locatable by neighboring addresses'))
   })
 })
 
@@ -564,9 +564,9 @@ describe('locate.addresses creation', function () {
     let filbert = SFLocator.addresses.find(k => { return k.key === 'FILBERT' })
     expect(baker.values.length).toEqual(2)
     expect(sutter.values.length).toEqual(2)
-    expect(lombard.values.length).toEqual(8)
+    expect(lombard.values.length).toEqual(6)
     expect(ulloa.values.length).toEqual(5)
-    expect(filbert.values.length).toEqual(13)
+    expect(filbert.values.length).toEqual(5)
 
     expect(baker.values).toContain(jasmine.objectContaining({'number':'2101'}))
     expect(baker.values).toContain(jasmine.objectContaining({'number':'1030'}))
