@@ -340,15 +340,16 @@ describe('locate.findOne', function () {
           .toThrow(expecteds['noAddress'])
   })
 
-  it('should throw an error with a street and zip inside SF but no matching number', function() {
+  it('should return an error with a street and zip inside SF but no matching number', function() {
     let input = {
       number: '10000000000',
       street: 'JACKSON',
       type: 'ST',
       zipcode: '94102'
     }
-    expect( function(){ SFLocator.findOne(input) } )
-          .toThrow(expecteds['unmatched'])
+    let res = SFLocator.findOne(input)
+    expect(res).toEqual(expecteds['unmatched'])
+    
   })
 
   it('should throw an error with an address inside SF but no type', function() {

@@ -64,7 +64,7 @@ class Locator {
     let res = self.searchAddress(address, options)
 
     if (res.message === 'Address not found method searchAddress') {
-      throw new Error('Address not found')
+      return new Error('Address not found')
     }
 
     if (res.hasOwnProperty('address') && address.id) { res.id = address.id }
