@@ -64,7 +64,7 @@ class Locator {
     let res = self.searchAddress(address, options)
 
     if (res.message === 'Address not found method searchAddress') {
-      return new Error('Address not found method findOne')
+      throw new Error('Address not found')
     }
 
     if (res.hasOwnProperty('address') && address.id) { res.id = address.id }
@@ -109,6 +109,7 @@ class Locator {
         )
       }
     })
+
     if (res) {
       if (options.ignoreZipMismatch !== true && options.ignoreZip !== true) {
         if (address.zipcode && res.zipcode.toString() !== address.zipcode.toString()) {

@@ -233,14 +233,18 @@ let several = [
   {address: '5000 Geary Boulevard', zipcode: '94118'}
 ]
 
-describe('one off', function () {
-  // it('should work', function () {
-  //   let input =  {address: '959 JACKSON ST', zipcode: '94102'}
-  //   let expected = expecteds['mismatchZip']
-  //   let actual = SFLocator.findOne(input)
-  //   expect(actual).toEqual(expected)
-  // })
-})
+// describe('one off', function () {
+//   it('should throw an error with a street and zip inside SF but no matching number', function() {
+//     let input = {
+//       number: '10000000000',
+//       street: 'JACKSON',
+//       type: 'ST',
+//       zipcode: '94102'
+//     }
+//     expect( function(){ SFLocator.findOne(input) } )
+//           .toThrow(expecteds['unmatched'])
+//   })
+// })
 
 describe('locate.findOne', function () {
   let res = inputs.map(function (el) {
@@ -334,6 +338,17 @@ describe('locate.findOne', function () {
     }
     expect( function(){ SFLocator.findOne(input) } )
           .toThrow(expecteds['noAddress'])
+  })
+
+  it('should throw an error with a street and zip inside SF but no matching number', function() {
+    let input = {
+      number: '10000000000',
+      street: 'JACKSON',
+      type: 'ST',
+      zipcode: '94102'
+    }
+    expect( function(){ SFLocator.findOne(input) } )
+          .toThrow(expecteds['unmatched'])
   })
 
   it('should throw an error with an address inside SF but no type', function() {
@@ -489,6 +504,37 @@ describe ('locate.searchByNeighbors', function () {
   })
 })
 
+describe('locate.addresses creation', function () {
+  it('should be a d3-collection nest().entries() object', function () {
+    let baker = SFLocator.addresses.find(k => { return k.key === 'BAKER' })
+    let sutter = SFLocator.addresses.find(k => { return k.key === 'SUTTER' })
+    let lombard = SFLocator.addresses.find(k => { return k.key === 'LOMBARD' })
+    let ulloa = SFLocator.addresses.find(k => { return k.key === 'ULLOA' })
+    let filbert = SFLocator.addresses.find(k => { return k.key === 'FILBERT' })
+    expect(baker.values.length).toEqual(2)
+    expect(sutter.values.length).toEqual(2)
+    expect(lombard.values.length).toEqual(6)
+    expect(ulloa.values.length).toEqual(5)
+    expect(filbert.values.length).toEqual(5)
+
+    expect(baker.values).toContain(jasmine.objectContaining({'number':'2101'}))
+    expect(baker.values).toContain(jasmine.objectContaining({'number':'1030'}))
+  })
+})
+
+describe('locate.searchAddress', function () {
+  it('should find the right address', function () {
+    let baker = SFLocator.searchAddress({
+      number: '2101',
+      street: 'BAKER',
+      type: 'ST',
+      zipcode: '94115'
+    })
+    expect(baker).toEqual(jasmine.objectContaining({'eas baseid': '274772', 'cnn': '2624000', 'tractce10': '013400'}))
+
+  })
+})
+
 // describe('locate.findMany', function () {
 //   it('should return an array of found addresses when passed an array of valid addresses', function () {
 //     let res = SFLocator.findMany(several)
@@ -534,7 +580,6 @@ describe ('locate.searchByNeighbors', function () {
 //     expect(res.unmatched).toEqual(expected)
 //   })
 // })
-
 // describe('locate.reconsileUnmatched', function () {
 //   it('should return addresses "inside SF" that didnt match', function () {
 //     let unmatchingAddress = {address: '123 Doesnotexist Street', zipcode: '94118'}
@@ -554,34 +599,3 @@ describe ('locate.searchByNeighbors', function () {
 //     expect(res).toEqual(expected)
 //   })
 // })
-
-describe('locate.addresses creation', function () {
-  it('should be a d3-collection nest().entries() object', function () {
-    let baker = SFLocator.addresses.find(k => { return k.key === 'BAKER' })
-    let sutter = SFLocator.addresses.find(k => { return k.key === 'SUTTER' })
-    let lombard = SFLocator.addresses.find(k => { return k.key === 'LOMBARD' })
-    let ulloa = SFLocator.addresses.find(k => { return k.key === 'ULLOA' })
-    let filbert = SFLocator.addresses.find(k => { return k.key === 'FILBERT' })
-    expect(baker.values.length).toEqual(2)
-    expect(sutter.values.length).toEqual(2)
-    expect(lombard.values.length).toEqual(6)
-    expect(ulloa.values.length).toEqual(5)
-    expect(filbert.values.length).toEqual(5)
-
-    expect(baker.values).toContain(jasmine.objectContaining({'number':'2101'}))
-    expect(baker.values).toContain(jasmine.objectContaining({'number':'1030'}))
-  })
-})
-
-describe('locate.searchAddress', function () {
-  it('should find the right address', function () {
-    let baker = SFLocator.searchAddress({
-      number: '2101',
-      street: 'BAKER',
-      type: 'ST',
-      zipcode: '94115'
-    })
-    expect(baker).toEqual(jasmine.objectContaining({'eas baseid': '274772', 'cnn': '2624000', 'tractce10': '013400'}))
-
-  })
-})
