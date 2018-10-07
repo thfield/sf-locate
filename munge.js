@@ -37,11 +37,22 @@ const output = fs.createWriteStream(outputFile, { encoding: 'utf8' })
 let counter = 0
 let parser = parse({columns: true, delimiter: ','})
 let transformer = transform(function (record, callback) {
+  // skip if record['street name'] === 'UNKNOWN'
   let res = assignAddressProperties(record)
   // delete unwanted properties here
+  res.number = res['address number']
+  res['number suffix'] = res['address number suffix']
+  res.street = res['street name']
+  res.type = res['street type']
+  delete res['address number']
+  delete res['address number suffix']
+  delete res['street name']
+  delete res['street type']
+  delete res.location
+
   callback(null, res)
   counter++
-}, {parallel: 10})
+}, {parallel: 100})
 let stringifier = stringify({header: true})
 
 input

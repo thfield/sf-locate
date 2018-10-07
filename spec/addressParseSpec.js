@@ -18,177 +18,251 @@ let inputs = [
     expected: '100 LARKIN ST'
   },
   {
-    address: '960 4th Avenue',
+    address: '100 larkin st.',
+    test: 'should work with a lowercase abbreviation and punctuation',
+    expected: '100 LARKIN ST'
+  },
+  {
+    address: '527 4th Avenue',
     test: 'should zeropad numbered sts/aves less than 10',
-    expected: '960 04TH AVE'
+    expected: '527 04TH AVE'
   },
   {
-    address: '960 4th AVE',
+    address: '527 4th AVE',
     test: 'should zeropad numbered sts/aves less than 10, deal with "AVE"',
-    expected: '960 04TH AVE'
+    expected: '527 04TH AVE'
   },
   {
-    address: '960 fourth avenue',
+    address: '527 fourth avenue',
     test: 'should find an ordinal spelled avenue',
-    expected: '960 04TH AVE'
+    expected: '527 04TH AVE'
   },
   {
-    address: '960 thirteenth avenue',
-    test: 'should find an ordinal spelled teens avenue',
-    expected: '960 13TH AVE'
+    address: '189 thirteenth street',
+    test: 'should find an ordinal spelled teens street',
+    expected: '189 13TH ST'
   },
   {
-    address: '960 twenty second avenue',
+    address: '189 13th street',
+    test: 'should work with a numbered teens street',
+    expected: '189 13TH ST'
+  },
+  {
+    address: '1561 twenty second avenue',
     test: 'should find an ordinal spelled compund avenue',
-    expected: '960 22ND AVE'
+    expected: '1561 22ND AVE'
   },
   {
-    address: '960 twenty-second avenue',
+    address: '1561 twenty-second avenue',
     test: 'should find an ordinal spelled compund avenue with hyphen',
-    expected: '960 22ND AVE'
+    expected: '1561 22ND AVE'
   },
   {
-    address: '123 BELLA VISTA WAY',
+    address: '287 BELLA VISTA WAY',
     test: 'should deal with a multi-word street name"',
-    expected: '123 BELLA VISTA WAY'
+    expected: '287 BELLA VISTA WAY'
   },
+  // {
+  //   address: '287 BELLA VISTA WY',
+  //   test: 'should unabbreviate "WY" to "WAY"',
+  //   expected: '287 BELLA VISTA WAY'
+  // },
   {
-    address: '123 TURQUOISE WY',
-    test: 'should unabbreviate "WY" to "WAY"',
-    expected: '123 TURQUOISE WAY'
-  },
-  {
-    address: '123 arguello boulevard',
+    address: '5000 Geary boulevard',
     test: 'should abbreviate "boulevard"',
-    expected: '123 ARGUELLO BLVD'
+    expected: '5000 GEARY BLVD'
   },
   {
-    address: "123 O'Farrell st",
+    address: "1739 O'Farrell st",
     test: 'should remove apostrophes',
-    expected: '123 OFARRELL ST'
+    expected: '1739 OFARRELL ST'
   },
   {
-    address: 'lorem ipsum',
-    test: 'should do something predictable with nonsense',
-    expected: null
-  },
-  {
-    address: '123 Main Street Apt 1',
+    address: '4400 Mission Street Apt 1',
     test: 'should handle apartment numbers 1',
-    expected: '123 MAIN ST'
+    expected: '4400 MISSION ST'
   },
   {
-    address: '123 Main Street Apartment 1',
+    address: '4400 Mission Street Apartment 1',
     test: 'should handle apartment numbers 2',
-    expected: '123 MAIN ST'
+    expected: '4400 MISSION ST'
   },
   {
-    address: '123 Main Street, Apt #1',
+    address: '4400 Mission Street, Apt #1',
     test: 'should handle apartment numbers 3',
-    expected: '123 MAIN ST'
+    expected: '4400 MISSION ST'
   },
   {
-    address: '123 Main Street #1',
+    address: '4400 Mission Street #1',
     test: 'should handle apartment numbers 4',
-    expected: '123 MAIN ST'
+    expected: '4400 MISSION ST'
   },
   {
-    address: '123 Main Street, #1',
+    address: '4400 Mission Street, #1',
     test: 'should handle apartment numbers 5',
-    expected: '123 MAIN ST'
+    expected: '4400 MISSION ST'
   },
   {
-    address: '123 Main Street, 1',
+    address: '4400 Mission Street, 1',
     test: 'should handle apartment numbers 6',
-    expected: '123 MAIN ST'
+    expected: '4400 MISSION ST'
   },
   {
-    address: '123 Main Street Unit 1',
+    address: '4400 Mission Street Unit 1',
     test: 'should handle apartment numbers 7',
-    expected: '123 MAIN ST'
+    expected: '4400 MISSION ST'
   },
   {
-    address: '123 Main Street # 101',
+    address: '4400 Mission Street # 101',
     test: 'should handle apartment numbers 8',
-    expected: '123 MAIN ST'
+    expected: '4400 MISSION ST'
   },
   {
-    address: '123 Main Street W #101',
+    address: '4400 Mission Street W #101',
     test: 'should handle apartment numbers 9',
-    expected: '123 MAIN ST'
+    expected: '4400 MISSION ST'
   },
   {
-    address: '123 Main Street E404',
+    address: '4400 Mission Street E404',
     test: 'should handle apartment numbers 10',
-    expected: '123 MAIN ST'
+    expected: '4400 MISSION ST'
   },
   {
-    address: '123 Main Street Apt.3',
+    address: '4400 Mission Street Apt.3',
     test: 'should handle apartment numbers 11',
-    expected: '123 MAIN ST'
+    expected: '4400 MISSION ST'
   },
   {
-    address: '123 Main Street Apt. J',
+    address: '4400 Mission Street Apt. J',
     test: 'should handle apartment numbers 12',
-    expected: '123 MAIN ST'
+    expected: '4400 MISSION ST'
   },
   {
-    address: '123 Main Street No 1',
+    address: '4400 Mission Street No 1',
     test: 'should handle apartment numbers 13',
-    expected: '123 MAIN ST'
+    expected: '4400 MISSION ST'
   }
 ]
 
-describe('addressParse.normalString', function () {
+describe('addressParse.standardize', function () {
   let res = inputs.map(function (el) {
-    return addressParse.normalString(el.address)
+    return addressParse.standardize(el.address)
   })
 
   res.forEach(function (r, i) {
     it(inputs[i].test, function () {
-      expect(r).toEqual(inputs[i].expected)
+      let exp = expecteds[inputs[i].expected]
+      expect(r).toEqual(jasmine.objectContaining(exp))
     })
   })
+
+  it('should throw an error if fed nonsense', function () {
+    expect( function(){ addressParse.standardize('lorem ipsum st') })
+      .toThrow(new Error('input to method addressParse.standardize must be an address'))
+  })
+
+  it('should throw an error if given not a string', function () {
+    expect( function(){ addressParse.standardize(['lorem ipsum']) })
+      .toThrow(new Error('input to method addressParse.standardize must be a string'))
+    expect( function(){ addressParse.standardize(1) })
+      .toThrow(new Error('input to method addressParse.standardize must be a string'))
+  })
+
 })
 
+// describe('addressParse.standardize one off', function () {
+//   let foo = {
+//       address: '189 thirteenth street',
+//       test: 'should find an ordinal spelled teens street',
+//       expected: '189 13TH ST'
+//     }
+//     let res = addressParse.standardize( foo.address )
+//
+//     it(foo.test, function () {
+//       let exp = expecteds[foo.expected]
+//       expect(res).toEqual(jasmine.objectContaining(exp))
+//     })
+// })
+
+
 let expecteds = {
+  '4400 MISSION ST': {
+    number: '4400',
+    street: 'MISSION',
+    type: 'ST'
+  },
+  '100 LARKIN ST': {
+    number: '100',
+    street: 'LARKIN',
+    type: 'ST'
+  },
+  '1561 22ND AVE': {
+    number: '1561',
+    street: '22ND',
+    type: 'AVE'
+  },
+  '287 BELLA VISTA WAY': {
+    number: '287',
+    street: 'BELLA VISTA',
+    type: 'WAY'
+  },
+  '189 13TH ST': {
+    number: '189',
+    street: '13TH',
+    type: 'ST'
+  },
+  '527 04TH AVE': {
+    number: '527',
+    street: '04TH',
+    type: 'AVE'
+  },
+  '2101 BAKER ST': {
+    number: '2101',
+    street: 'BAKER',
+    type: 'ST'
+  },
+  '5000 GEARY BLVD': {
+    number: '5000',
+    street: 'GEARY',
+    type: 'BLVD'
+  },
+  '1739 OFARRELL ST': {
+    number: '1739',
+    street: 'OFARRELL',
+    type: 'ST'
+  },
+  '26 PORTOLA DR': {
+    number: '26',
+    street: 'PORTOLA',
+    type: 'DR'
+  },
   '353 OAK ST': {
-    address: '353 OAK ST',
     number: '353',
     street: 'OAK',
-    type: 'ST',
-    zipcode: '94102'
+    type: 'ST'
   },
   '357 OAK ST': {
-    address: '357 OAK ST',
     number: '357',
     street: 'OAK',
-    type: 'ST',
-    zipcode: '94102'
+    type: 'ST'
   },
   '564 GROVE ST': {
-    address: '564 GROVE ST',
     number: '564',
     street: 'GROVE',
-    type: 'ST',
-    zipcode: '94102'
+    type: 'ST'
   },
   '554 GROVE ST': {
-    address: '554 GROVE ST',
     number: '554',
     street: 'GROVE',
-    type: 'ST',
-    zipcode: '94102'
+    type: 'ST'
   }
 }
 
 describe('addressParse.nextDoor', function () {
   let address = {
-    address: '355 OAK ST',
     number: '355',
     street: 'OAK',
-    type: 'ST',
-    zipcode: '94102'
+    type: 'ST'
   }
   it('should find the next highest street address implicitly', function () {
     let res = addressParse.nextDoor(address)
@@ -202,19 +276,4 @@ describe('addressParse.nextDoor', function () {
     let res = addressParse.nextDoor(address, 'down')
     expect(res).toEqual(expecteds['353 OAK ST'])
   })
-})
-
-describe('addressParse.standardize', function () {
-  let simple = {address:'123 Main Street', zipcode:'94102'}
-  let full = {address:'123 MAIN ST', zipcode:'94102', number: '123', street: 'MAIN', type: 'ST'}
-
-  it('should take a simple object and return a parsed version', function () {
-    let r = addressParse.standardize(simple)
-    expect(r).toEqual(full)
-  })
-
-  // it('should error in a reasonable way', function () {
-  //   let r = addressParse.standardize({address: 'foo'})
-  //   expect(r).toEqual(null)
-  // })
 })
