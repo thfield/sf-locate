@@ -37,13 +37,16 @@ Run once
 1. `$ npm run prep-data`
 This creates a lookup table of addresses in San Francisco which gets reused.  It will take a long time (like, 0.5-2hr or more, depending) to process all the addresses, because it is inefficient.
 
+Optional
+1. put additional (non-official) addresses into `additional-addresses.csv`, run `additional-munge.js`, copy those addresses into ./data/addressesProcessed.csv
+
 ## tests
 Oh snap! I actually wrote tests?
 - `$npm test`
 
 ## use
 ```javascript
-  const SFLocator = require('index.js')
+  const SFLocator = require('locator.js')
   let locator = new SFLocator()
 
   let mainLibrary = locator.findOne({address: '100 Larkin St.', zipcode: '94102'})
