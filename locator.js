@@ -123,10 +123,22 @@ class Locator {
 
   /** @function searchByNeighbors - find info about an address by interpolating the neighbors
    * @param {object} address - an object representing an address
+   * @param {object} options - options
+   * @param {boolean} options.interpolate - search by interpolation
+   * @param {boolean} options.nextDoor - match to a "next door" address
    */
-  searchByNeighbors (address) {
+  searchByNeighbors (address, options = {}) {
     let self = this
-    let neighbors = [self.findNextDoor(address, 'up'), self.findNextDoor(address, 'down')]
+    if (options.nextDoor) {throw new Error('not yet implemented')}
+    if (options.ignoreZip) {throw new Error('not yet implemented')}
+    if (options.ignoreStreetType) {throw new Error('not yet implemented')}
+
+    let neighbors
+    try {
+      neighbors = [self.findNextDoor(address, 'up'), self.findNextDoor(address, 'down')]
+    } catch (error) {
+      throw new Error('Not locatable by neighboring addresses')
+    }
 
     if (neighbors.some(d => d instanceof Error)) throw new Error('Not locatable by neighboring addresses')
 

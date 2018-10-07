@@ -217,6 +217,35 @@ let expecteds = {
     prec_2012: '7314',
     supdist: '3',
     tractce10: '010700',
+  },
+  '1007 BROADWAY': {
+    address: '1007 BROADWAY',
+    zipcode: '94133',
+    assemdist: '17',
+    bartdist: '8',
+    congdist: '12',
+    nhood: 'Nob Hill',
+    prec_2010: '3326',
+    prec_2012: '7321',
+    supdist: '3',
+    tractce10: '010800',
+    number: '1007',
+    street: 'BROADWAY',
+  },
+  '2103 BAKER ST': {
+    address:'2103 BAKER ST',
+    zipcode:'94115',
+    assemdist:'19',
+    bartdist:'8',
+    congdist:'12',
+    nhood:'Pacific Heights',
+    prec_2010:'2209',
+    prec_2012:'9236',
+    supdist:'2',
+    tractce10:'013400',
+    number:'2103',
+    street:'BAKER',
+    type:'ST'
   }
 }
 
@@ -503,6 +532,22 @@ describe ('locate.searchByNeighbors', function () {
     expect( function(){ SFLocator.searchByNeighbors(notInEAS[2]) } )
           .toThrow(new Error('Not locatable by neighboring addresses'))
   })
+  it('should find an address "next door" if asked', function () {
+    let t = {number:'2103', street: 'BAKER', type: 'ST', zipcode:'94115'}
+    let res = SFLocator.searchByNeighbors(t, {nextDoor: true})
+    expect(res).toEqual(jasmine.objectContaining(expecteds['2103 BAKER ST']))
+  })
+  it('should work with a zip outside SF if options.ignoreZip is true', function () {
+    let t = {number: '355', street: 'OAK', type: 'ST', zipcode: '12345'}
+    let res = SFLocator.searchByNeighbors(t, {ignoreZip: true})
+    expect(res).toEqual(jasmine.objectContaining(expecteds['355 OAK ST']))
+  })
+  it('should work with an address without type if options.ignoreStreetType is true', function () {
+    let t = {number: '1007', street: 'BROADWAY', zipcode: '94102'}
+    let res = SFLocator.searchByNeighbors(t, {ignoreStreetType: true})
+    expect(res).toEqual(jasmine.objectContaining(expecteds['1007 BROADWAY']))
+  })
+
 })
 
 describe('locate.addresses creation', function () {
