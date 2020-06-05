@@ -1,13 +1,15 @@
 'use strict'
+const d3 = require('d3-collection')
 const readCsv = require('./lib/readCsv')
 const sfZip = require('./lib/sfZip')
+const sfDupeStreets = require('./lib/sfDupeStreets')
 const addressParse = require('./lib/addressParse')
 const midpoint = require('./lib/midpoint')
-const d3 = require('d3-collection')
 const nestedFind = require('./lib/nestedFind')
 
 // TODO: name swap 'find' and 'search'
 // TODO: throw errors instead of returning null
+// TODO: option to replace entered zipcode with zip matching address
 
 class Locator {
   // t is for testing (load smaller csv file, don't write files)
@@ -26,10 +28,13 @@ class Locator {
    * @param {string} address.street - the address street name
    * @param {string} address.type - the address type
    * @param {string} address.zipcode - the zip code, 5 or 9 digit format
-   * @param {object} options
+   * @param {object} options - dictionary of booleans
    * @param {boolean} options.ignoreZip - ignore the zipcode when checking
    * @param {boolean} options.ignoreSFZip - don't check to see if zip is within SF
    * @param {boolean} options.ignoreZipMismatch - ignore if the zipcode doesn't match address
+   * @param {boolean} options.replaceZipMismatch - replace entered zipcode with zip of matching address
+   * @param {boolean} options.ignoreStreetType - ignore if the address doesn't have a type (st, ave, rd, etc)
+   * @param {boolean} options.tryOtherType - see if the street could have another type (st, ave, rd, etc) and use it
    */
   findOne (address, options = {}) {
     // findOne should just take objects and throw an error if input doesn't meet min requirements
@@ -73,8 +78,8 @@ class Locator {
     let ignored = Object.keys(options).filter(k => options[k] === true)
 
     if ( ignored.length > 0 ) {
-      ignored = ignored.join(', ').replace(/ignore/g, '')
-      res.method = `match ignored ${ignored}`
+      ignored = ignored.join(', ')
+      res.method = `match used ${ignored}`
     } else {
       res.method = 'direct match with EAS listing'
     }
@@ -88,10 +93,18 @@ class Locator {
    * @param {object} options
    * @param {boolean} options.ignoreZipMismatch - ignore if the zipcode doesn't match address
    * @param {boolean} options.ignoreStreetType - ignore if the address doesn't have a type (st, ave, rd, etc)
+   * @param {boolean} options.tryOtherType - see if the street could have another type (st, ave, rd, etc)
    */
   searchAddress (address, options = {}) {
     let self = this
     // use addressParse to standardize the address
+
+    if (options.tryOtherType === true) {
+      let otherTypes = sfDupeStreets(address)
+      if (otherTypes && otherTypes.length === 1) {
+        address.type = otherTypes[0]
+      }
+    }
 
     // then match the normalized address to the listing of all addresses
     let street = nestedFind(self.addresses, address.street)
@@ -129,13 +142,13 @@ class Locator {
    */
   searchByNeighbors (address, options = {}) {
     let self = this
-    if (options.nextDoor) {throw new Error('not yet implemented')}
-    if (options.ignoreZip) {throw new Error('not yet implemented')}
-    if (options.ignoreStreetType) {throw new Error('not yet implemented')}
+    if (options.nextDoor) {throw new Error('not yet implemented: searchByNeighbors options.nextDoor')}
+    // if (options.ignoreZip) {throw new Error('not yet implemented: searchByNeighbors options.ignoreZip')}
+    // if (options.ignoreStreetType) {throw new Error('not yet implemented: searchByNeighbors options.ignoreStreetType')}
 
     let neighbors
     try {
-      neighbors = [self.findNextDoor(address, 'up'), self.findNextDoor(address, 'down')]
+      neighbors = [self.findNextDoor(address, 'up', options), self.findNextDoor(address, 'down', options)]
     } catch (error) {
       throw new Error('Not locatable by neighboring addresses')
     }
@@ -183,13 +196,18 @@ class Locator {
   /** @function findNextDoor - find the neighboring address
    * @param {object} address - an object representing an address
    * @param {string} upDown - look up or down the street
+   * @param {object} options - options object passed from searchByNeighbors call
+   * @param {boolean} options.ignoreZipMismatch - ignore if the zipcode doesn't match address
+   * @param {boolean} options.ignoreStreetType - ignore if the address doesn't have a type (st, ave, rd, etc)
    *
    */
-  findNextDoor (address, upDown = 'up') {
+  findNextDoor (address, upDown = 'up', options) {
     let self = this
     let addr = address
     if (!addr.number || !addr.street || !addr.type) {
-      return new Error('cannot find next door without an address object')
+      if (options.ignoreStreetType && (!addr.number || !addr.street) ) {
+        return new Error('cannot find next door without an address object')
+      }
       // addr = addressParse.standardize(addr)
     }
 
@@ -198,11 +216,11 @@ class Locator {
     do {
       // add or subtract 2 to the address number
       addr = addressParse.nextDoor(addr, upDown)
-      res = self.searchAddress(addr)
+      res = self.searchAddress(addr, options)
 
       if (res instanceof Error) { i++ }
       else { return res }
-    } while (i < 10)
+    } while (i < 100)
 
     return new Error('Nextdoor address not found')
   }

@@ -311,14 +311,16 @@ describe('locate.findOne', function () {
           .toThrow(expecteds['mismatchZip'])
   })
   it('should work with an address inside SF and mismatching zip inside SF if options.ignoreZip is true ', function() {
-    let addr = {number: '5000', street: 'GEARY', type: 'BLVD', zipcode: '94118'}
+    let addr = {number: '5000', street: 'GEARY', type: 'BLVD', zipcode: '94102'}
     let res = SFLocator.findOne(addr, {ignoreZip: true})
-    expect(res).toEqual(jasmine.objectContaining(expecteds['5000 GEARY BLVD']))
+    let exp = Object.assign({originalZip: addr.zipcode}, expecteds['5000 GEARY BLVD'])
+    expect(res).toEqual(jasmine.objectContaining(exp))
   })
   it('should work with an address inside SF and mismatching zip inside SF if options.ignoreZipMismatch is true ', function() {
-    let addr = {number: '5000', street: 'GEARY', type: 'BLVD', zipcode: '94118'}
+    let addr = {number: '5000', street: 'GEARY', type: 'BLVD', zipcode: '94102'}
     let res = SFLocator.findOne(addr, {ignoreZipMismatch: true})
-    expect(res).toEqual(jasmine.objectContaining(expecteds['5000 GEARY BLVD']))
+    let exp = Object.assign({originalZip: addr.zipcode}, expecteds['5000 GEARY BLVD'])
+    expect(res).toEqual(jasmine.objectContaining(exp))
   })
 
   it('should throw an error with an address inside SF with zip outside SF', function() {
@@ -378,7 +380,7 @@ describe('locate.findOne', function () {
     }
     let res = SFLocator.findOne(input)
     expect(res).toEqual(expecteds['unmatched'])
-    
+
   })
 
   it('should throw an error with an address inside SF but no type', function() {

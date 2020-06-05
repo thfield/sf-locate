@@ -1,1 +1,1 @@
-https://data.sfgov.org/api/views/sr5d-tnui/rows.csv?accessType=DOWNLOAD
+https://data.sfgov.org/api/views/3mea-di5p/rows.csv?accessType=DOWNLOAD
