@@ -35,7 +35,7 @@ const output = fs.createWriteStream(outputFile, { encoding: 'utf8' })
 // ]
 
 let counter = 0
-let parser = parse({columns: true, delimiter: ','})
+let parser = parse({columns: header => header.map( column => column.toLowerCase() ), delimiter: ','})
 let transformer = transform(function (record, callback) {
   // skip if record['street name'] === 'UNKNOWN'
   let res = assignAddressProperties(record)
@@ -52,7 +52,7 @@ let transformer = transform(function (record, callback) {
 
   callback(null, res)
   counter++
-}, {parallel: 100})
+}, {parallel: 500})
 let stringifier = stringify({header: true})
 
 input
