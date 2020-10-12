@@ -37,12 +37,12 @@ let inputs = [
 ]
 
 let expecteds = {
-  noZip: Error('Has no zip code'),
-  noAddress: Error('Not enough address info'),
-  outsideSF: Error('Not an SF zip code'),
-  mismatchZip: Error('Zip Code and Address do not match'),
-  unmatched: Error('Address not found'),
-  unlisted: Error('Street not in listing'),
+  noZip: 'Has no zip code',
+  noAddress: 'Not enough address info',
+  outsideSF: 'Not an SF zip code',
+  mismatchZip: 'Zip Code and Address do not match',
+  unmatched: 'Address not found',
+  unlisted: 'Street not in listing',
   '527 04TH AVE': {
     number: '527',
     street: '04TH',
@@ -218,22 +218,20 @@ let expecteds = {
     supdist: '3',
     tractce10: '010700',
   },
-  '1007 BROADWAY': {
-    address: '1007 BROADWAY',
-    zipcode: '94133',
-    assemdist: '17',
+  '2664 BROADWAY': {
+    zipcode: '94115',
+    assemdist: '19',
     bartdist: '8',
     congdist: '12',
-    nhood: 'Nob Hill',
-    prec_2010: '3326',
-    prec_2012: '7321',
-    supdist: '3',
-    tractce10: '010800',
-    number: '1007',
+    nhood: 'Pacific Heights',
+    prec_2010: '3224',
+    prec_2012: '9222',
+    supdist: '2',
+    tractce10: '013200',
+    number: '2664',
     street: 'BROADWAY',
   },
   '2103 BAKER ST': {
-    address:'2103 BAKER ST',
     zipcode:'94115',
     assemdist:'19',
     bartdist:'8',
@@ -275,103 +273,103 @@ let several = [
 //   })
 // })
 
-describe('locate.findOne', function () {
-  let res = inputs.map(function (el) {
-    return SFLocator.findOne(el.input)
-  })
-
-  res.forEach(function (r, i) {
-    it('with '.concat(inputs[i].description), function () {
+inputs.forEach(function (el, i) {
+  describe(`locate.findOne input[${i}]`, function () {
+    it('with '.concat(el.description), async function () {
+      let r = await SFLocator.findOne(el.input)
       if (typeof r === 'string') {
-        expect(r).toEqual(expecteds[inputs[i].expected])
+        expect(r).toEqual(expecteds[el.expected])
       } else if (typeof r === 'object') {
-        expect(r).toEqual(jasmine.objectContaining(expecteds[inputs[i].expected]))
+        expect(r).toEqual(jasmine.objectContaining(expecteds[el.expected]))
       }
     })
   })
+})
 
-  it('should throw an error with a standardized valid address without zipcode', function() {
+describe('locate.findOne', function () {
+
+  it('should throw an error with a standardized valid address without zipcode', async function() {
     let input = {
       number: '2101',
       street: 'BAKER',
       type: 'ST'
     }
-    expect( function(){ SFLocator.findOne(input) } )
-          .toThrow(expecteds['noZip'])
+    let res = SFLocator.findOne(input)
+    await expectAsync(res).toBeRejectedWithError(expecteds['noZip']) 
   })
 
-  it('should throw an error with an address inside SF with mismatched zip inside SF', function() {
+  it('should throw an error with an address inside SF with mismatched zip inside SF', async function() {
     let input = {
       number: '959',
       street: 'JACKSON',
       type: 'ST',
       zipcode: '94102'
     }
-    expect( function(){ SFLocator.findOne(input) } )
-          .toThrow(expecteds['mismatchZip'])
+    let res = SFLocator.findOne(input)
+    await expectAsync(res).toBeRejectedWithError(expecteds['mismatchZip'])      
   })
-  it('should work with an address inside SF and mismatching zip inside SF if options.ignoreZip is true ', function() {
+  it('should work with an address inside SF and mismatching zip inside SF if options.ignoreZip is true ', async function() {
     let addr = {number: '5000', street: 'GEARY', type: 'BLVD', zipcode: '94102'}
     let res = SFLocator.findOne(addr, {ignoreZip: true})
     let exp = Object.assign({originalZip: addr.zipcode}, expecteds['5000 GEARY BLVD'])
-    expect(res).toEqual(jasmine.objectContaining(exp))
+    await expectAsync(res).toBeResolvedTo(jasmine.objectContaining(exp))
   })
-  it('should work with an address inside SF and mismatching zip inside SF if options.ignoreZipMismatch is true ', function() {
+  it('should work with an address inside SF and mismatching zip inside SF if options.ignoreZipMismatch is true ', async function() {
     let addr = {number: '5000', street: 'GEARY', type: 'BLVD', zipcode: '94102'}
     let res = SFLocator.findOne(addr, {ignoreZipMismatch: true})
     let exp = Object.assign({originalZip: addr.zipcode}, expecteds['5000 GEARY BLVD'])
-    expect(res).toEqual(jasmine.objectContaining(exp))
+    await expectAsync(res).toBeResolvedTo(jasmine.objectContaining(exp))
   })
 
-  it('should throw an error with an address inside SF with zip outside SF', function() {
+  it('should throw an error with an address inside SF with zip outside SF', async function() {
     let input = {
       number: '959',
       street: 'JACKSON',
       type: 'ST',
       zipcode: '12345'
     }
-    expect( function(){ SFLocator.findOne(input) } )
-          .toThrow(expecteds['outsideSF'])
+    await expectAsync( SFLocator.findOne(input) )
+          .toBeRejectedWithError(expecteds['outsideSF'])
   })
 
-  it('should throw an error with an address inside SF with zip outside SF if options.ignoreSFZip is true', function() {
+  it('should throw an error with an address inside SF with zip outside SF if options.ignoreSFZip is true', async function() {
     let input = {
       number: '959',
       street: 'JACKSON',
       type: 'ST',
       zipcode: '12345'
     }
-    expect( function(){ SFLocator.findOne(input, {ignoreSFZip:true}) } )
-          .toThrow(expecteds['mismatchZip'])
+    await expectAsync( SFLocator.findOne(input, {ignoreSFZip:true}) )
+          .toBeRejectedWithError(expecteds['mismatchZip'])
   })
 
-  it('should work with an address inside SF and zip outside SF if options.ignoreZip is true ', function() {
+  it('should work with an address inside SF and zip outside SF if options.ignoreZip is true ', async function() {
     let addr = {number: '5000', street: 'GEARY', type: 'BLVD', zipcode: '12345'}
     let res = SFLocator.findOne(addr, {ignoreZip: true})
-    expect(res).toEqual(jasmine.objectContaining(expecteds['5000 GEARY BLVD']))
+    await expectAsync(res).toBeResolvedTo(jasmine.objectContaining(expecteds['5000 GEARY BLVD']))
   })
 
-  it('should throw an error with a zip inside SF but no number address', function() {
+  it('should throw an error with a zip inside SF but no number address', async function() {
     let input = {
       street: 'JACKSON',
       type: 'ST',
       zipcode: '94102'
     }
-    expect( function(){ SFLocator.findOne(input) } )
-          .toThrow(expecteds['noAddress'])
+    await expectAsync( SFLocator.findOne(input) )
+          .toBeRejectedWithError(expecteds['noAddress'])
   })
 
-  it('should throw an error with a zip inside SF but no street', function() {
+  it('should throw an error with a zip inside SF but no street', async function() {
     let input = {
       number: '959',
       type: 'ST',
       zipcode: '94102'
     }
-    expect( function(){ SFLocator.findOne(input) } )
-          .toThrow(expecteds['noAddress'])
+    await expectAsync( SFLocator.findOne(input) )
+          .toBeRejectedWithError(expecteds['noAddress'])
   })
 
-  it('should return an error with a street and zip inside SF but no matching number', function() {
+  it('should return an error with a street and zip inside SF but no matching number', async function() {
     let input = {
       number: '10000000000',
       street: 'JACKSON',
@@ -379,83 +377,82 @@ describe('locate.findOne', function () {
       zipcode: '94102'
     }
     let res = SFLocator.findOne(input)
-    expect(res).toEqual(expecteds['unmatched'])
-
+    await expectAsync(res).toBeRejectedWithError(expecteds['unmatched'])
   })
 
-  it('should throw an error with an address inside SF but no type', function() {
+  it('should throw an error with an address inside SF but no type', async function() {
     let input = {
       number: '959',
       street: 'JACKSON',
       zipcode: '94102'
     }
-    expect( function(){ SFLocator.findOne(input) } )
-          .toThrow(expecteds['noAddress'])
+    await expectAsync( SFLocator.findOne(input) )
+          .toBeRejectedWithError(expecteds['noAddress'])
   })
-  it('should work with an address inside SF and no street type if options.ignoreStreetType is true', function() {
+
+  it('should work with an address inside SF and no street type if options.ignoreStreetType is true', async function() {
     let addr = {number: '730', street: 'BROADWAY', zipcode: '94133'}
     let res = SFLocator.findOne(addr, {ignoreStreetType: true})
-    expect(res).toEqual(jasmine.objectContaining(expecteds['730 BROADWAY']))
+    await expectAsync(res).toBeResolvedTo(jasmine.objectContaining(expecteds['730 BROADWAY']))
   })
 
-
-  it('should throw an error with a non-existing street with zip inside SF', function() {
+  it('should throw an error with a non-existing street with zip inside SF', async function() {
     let input = {
       number: '123',
       street: 'DOESNOTEXIST',
       type: 'ST',
       zipcode: '94102'
     }
-    expect( function(){ SFLocator.findOne(input) } )
-          .toThrow(expecteds['unlisted'])
+    await expectAsync( SFLocator.findOne(input))
+          .toBeRejectedWithError(expecteds['unlisted'])
   })
 
-  it('should throw an error with a non-existing street with zip outside SF', function() {
+  it('should throw an error with a non-existing street with zip outside SF', async function() {
     let input = {
       number: '123',
       street: 'DOESNOTEXIST',
       type: 'ST',
       zipcode: '12345'
     }
-    expect( function(){ SFLocator.findOne(input) } )
-          .toThrow(expecteds['outsideSF'])
+    await expectAsync( SFLocator.findOne(input) )
+          .toBeRejectedWithError(expecteds['outsideSF'])
   })
 
-  it('should throw an error with a non-existing street with zip outside SF and ignoreSFZip set to true', function() {
+  it('should throw an error with a non-existing street with zip outside SF and ignoreSFZip set to true', async function() {
     let input = {
       number: '123',
       street: 'DOESNOTEXIST',
       type: 'ST',
       zipcode: '12345'
     }
-    expect( function(){ SFLocator.findOne(input, {ignoreSFZip: true}) } )
-          .toThrow(expecteds['unlisted'])
+    await expectAsync( SFLocator.findOne(input, {ignoreSFZip: true}) )
+          .toBeRejectedWithError(expecteds['unlisted'])
   })
 
-  it('should throw an error with a a nonsense input', function() {
+  it('should throw an error with a a nonsense input', async function() {
     let input = {foo: 'asdf'}
-    expect( function(){ SFLocator.findOne(input) } )
-          .toThrow(expecteds['noAddress'])
+    await expectAsync( SFLocator.findOne(input) )
+          .toBeRejectedWithError(expecteds['noAddress'])
   })
 
-  it('should error with an address inside SF, zip outside SF, and ignoring sf zip code requirement', function() {
+  it('should error with an address inside SF, zip outside SF, and ignoring sf zip code requirement', async function() {
     let input = {
       number: '959',
       street: 'JACKSON',
       type: 'ST',
       zipcode: '12345'
     }
-    expect( function(){ SFLocator.findOne(input, {ignoreSFZip: true}) } )
-          .toThrow(expecteds['mismatchZip'])
+    await expectAsync( SFLocator.findOne(input, {ignoreSFZip: true}) )
+          .toBeRejectedWithError(expecteds['mismatchZip'])
   })
 
-  it('should keep the id property if it is passed in', function () {
+  it('should keep the id property if it is passed in', async function () {
     let res = SFLocator.findOne(Object.assign({id:'asdf1234'}, inputs[1].input))
-    expect(res).toEqual(jasmine.objectContaining(expecteds['2101 BAKER ST']))
-    expect(res).toEqual(jasmine.objectContaining({id:'asdf1234'}))
+    await expectAsync(res).toBeResolvedTo(jasmine.objectContaining(expecteds['2101 BAKER ST']))
+    await expectAsync(res).toBeResolvedTo(jasmine.objectContaining({id:'asdf1234'}))
   })
 
-  it('should report how the match was made', function () {
+  it('should report how the match was made', async function () {
     let addr = {
       number: '527',
       street: '04TH',
@@ -464,123 +461,122 @@ describe('locate.findOne', function () {
     }
 
     let directly = SFLocator.findOne(addr)
-    expect(directly).toEqual(jasmine.objectContaining({method: 'direct match with EAS listing'}))
+    await expectAsync(directly).toBeResolvedTo(jasmine.objectContaining({method: 'direct match with EAS listing'}))
 
     // ignoring street type
     let ignoreStreetType = SFLocator.findOne({number: '730', street: 'BROADWAY', zipcode: '94133'}, {ignoreStreetType: true})
-    expect(ignoreStreetType).toEqual(jasmine.objectContaining({method: 'match ignored StreetType'}))
+    await expectAsync(ignoreStreetType).toBeResolvedTo(jasmine.objectContaining({method: 'match used ignoreStreetType'}))
 
     // ignoring zipcode match
     let ignoreZipcode = SFLocator.findOne(Object.assign(addr, {zipcode: '94102'}), {ignoreZip: true})
-    expect(ignoreZipcode).toEqual(jasmine.objectContaining({method: 'match ignored Zip'}))
+    await expectAsync(ignoreZipcode).toBeResolvedTo(jasmine.objectContaining({method: 'match used ignoreZip'}))
 
     // ignoring zipcode and street type
     let ignoreStreetTypeAndZip = SFLocator.findOne({number: '730', street: 'BROADWAY', zipcode: '94102'}, {ignoreZip: true, ignoreStreetType: true})
-    expect(ignoreStreetTypeAndZip).toEqual(jasmine.objectContaining({method: 'match ignored Zip, StreetType'}))
+    await expectAsync(ignoreStreetTypeAndZip).toBeResolvedTo(jasmine.objectContaining({method: 'match used ignoreZip, ignoreStreetType'}))
 
     // neighbor interpolation
     let interpolation = SFLocator.searchByNeighbors({number: '355', street: 'OAK', type: 'ST', zipcode: '94102'})
-    expect(interpolation).toEqual(jasmine.objectContaining({method: 'match by neighboring interpolation'}))
+    await expectAsync(interpolation).toBeResolvedTo(jasmine.objectContaining({method: 'match by neighboring interpolation'}))
+
+    // find by nextDoor address
+    let nextDoor = SFLocator.searchByNeighbors({number: '1032', street: 'BUCHANAN', type: 'ST', zipcode: '94115'}, {nextDoor: true})
+    await expectAsync(nextDoor).toBeResolvedTo(jasmine.objectContaining({method: 'match by neighbor address'}))
   })
 })
 
 describe('locate.findNextDoor', function () {
-  it('should error with an incomplete address object', function () {
+  it('should error with an incomplete address object', async function () {
     let res = SFLocator.findNextDoor({address: '355 OAK Street', zipcode: '94102'})
-    expect(res).toEqual(Error('cannot find next door without an address object'))
+    await expectAsync(res).toBeRejectedWith(Error('cannot find next door without an address object'))
   })
 
-  it('should find the next highest address by default', function () {
+  it('should find the next highest address by default', async function () {
     let res = SFLocator.findNextDoor(notInEAS[0])
-    expect(res).toEqual(jasmine.objectContaining(expecteds['357 OAK ST']))
+    await expectAsync(res).toBeResolvedTo(jasmine.objectContaining(expecteds['357 OAK ST']))
   })
 
-  it('should find the next highest address when asked', function () {
+  it('should find the next highest address when asked', async function () {
     let res = SFLocator.findNextDoor(notInEAS[0], 'up')
-    expect(res).toEqual(jasmine.objectContaining(expecteds['357 OAK ST']))
+    await expectAsync(res).toBeResolvedTo(jasmine.objectContaining(expecteds['357 OAK ST']))
   })
 
-  it('should find the next lowest address', function () {
+  it('should find the next lowest address', async function () {
     let res = SFLocator.findNextDoor(notInEAS[0], 'down')
-    expect(res).toEqual(jasmine.objectContaining(expecteds['353 OAK ST']))
+    await expectAsync(res).toBeResolvedTo(jasmine.objectContaining(expecteds['353 OAK ST']))
   })
 
-  it('should find the next highest address when difference more than 2', function () {
+  it('should find the next highest address when difference more than 2', async function () {
     let res = SFLocator.findNextDoor(notInEAS[1], 'up')
-    expect(res).toEqual(jasmine.objectContaining(expecteds['564 GROVE ST']))
+    await expectAsync(res).toBeResolvedTo(jasmine.objectContaining(expecteds['564 GROVE ST']))
   })
 
-  it('should find the next lowest address when difference more than 2', function () {
+  it('should find the next lowest address when difference more than 2', async function () {
     let res = SFLocator.findNextDoor(notInEAS[1], 'down')
-    expect(res).toEqual(jasmine.objectContaining(expecteds['554 GROVE ST']))
+    await expectAsync(res).toBeResolvedTo(jasmine.objectContaining(expecteds['554 GROVE ST']))
   })
 
-  it('should return an error when nextdoor search fails', function () {
+  it('should return an error when nextdoor search fails', async function () {
     let res = SFLocator.findNextDoor(notInEAS[3])
-    expect(res).toEqual(Error('Nextdoor address not found'))
+    await expectAsync(res).toBeRejectedWith(Error('Nextdoor address not found'))
   })
 })
 
 describe ('locate.searchByNeighbors', function () {
-  it('should return an object with interpolated data using neighbors 2 numbers apart', function () {
+  it('should return an object with interpolated data using neighbors 2 numbers apart', async function () {
     let res = SFLocator.searchByNeighbors(notInEAS[0])
-    expect(res).toEqual(jasmine.objectContaining(expecteds['355 OAK ST']))
+    await expectAsync(res).toBeResolvedTo(jasmine.objectContaining(expecteds['355 OAK ST']))
   })
-  it('should return an object with interpolated data using neighbors 10 numbers apart', function () {
+  it('should return an object with interpolated data using neighbors 10 numbers apart', async function () {
     let res = SFLocator.searchByNeighbors(notInEAS[1])
-    expect(res).toEqual(jasmine.objectContaining(expecteds['560 GROVE ST']))
+    await expectAsync(res).toBeResolvedTo(jasmine.objectContaining(expecteds['560 GROVE ST']))
   })
-  it('should throw a helpful error when unable to return', function () {
-    expect( function(){ SFLocator.searchByNeighbors(notInEAS[2]) } )
-          .toThrow(new Error('Not locatable by neighboring addresses'))
+  it('should throw a helpful error when unable to return', async function () {
+    await expectAsync( SFLocator.searchByNeighbors(notInEAS[2]) )
+          .toBeRejectedWith(new Error('Not locatable by neighboring addresses'))
   })
-  it('should find an address "next door" if asked', function () {
+  it('should find an address "next door" if asked', async function () {
     let t = {number:'2103', street: 'BAKER', type: 'ST', zipcode:'94115'}
     let res = SFLocator.searchByNeighbors(t, {nextDoor: true})
-    expect(res).toEqual(jasmine.objectContaining(expecteds['2103 BAKER ST']))
+    await expectAsync(res).toBeResolvedTo(jasmine.objectContaining(expecteds['2103 BAKER ST']))
   })
-  it('should work with a zip outside SF if options.ignoreZip is true', function () {
+  it('should work with a zip outside SF if options.ignoreZip is true', async function () {
     let t = {number: '355', street: 'OAK', type: 'ST', zipcode: '12345'}
     let res = SFLocator.searchByNeighbors(t, {ignoreZip: true})
-    expect(res).toEqual(jasmine.objectContaining(expecteds['355 OAK ST']))
+    let nozip = Object.assign({}, expecteds['355 OAK ST'])
+    delete nozip.zipcode
+    await expectAsync(res).toBeResolvedTo(jasmine.objectContaining(nozip))
   })
-  it('should work with an address without type if options.ignoreStreetType is true', function () {
-    let t = {number: '1007', street: 'BROADWAY', zipcode: '94102'}
+  it('should `work with an address without type` if options.ignoreStreetType is true', async function () {
+    let t = {number: '2664', street: 'BROADWAY', zipcode: '94115'}
     let res = SFLocator.searchByNeighbors(t, {ignoreStreetType: true})
-    expect(res).toEqual(jasmine.objectContaining(expecteds['1007 BROADWAY']))
-  })
-
-})
-
-describe('locate.addresses creation', function () {
-  it('should be a d3-collection nest().entries() object', function () {
-    let baker = SFLocator.addresses.find(k => { return k.key === 'BAKER' })
-    let sutter = SFLocator.addresses.find(k => { return k.key === 'SUTTER' })
-    let lombard = SFLocator.addresses.find(k => { return k.key === 'LOMBARD' })
-    let ulloa = SFLocator.addresses.find(k => { return k.key === 'ULLOA' })
-    let filbert = SFLocator.addresses.find(k => { return k.key === 'FILBERT' })
-    expect(baker.values.length).toEqual(2)
-    expect(sutter.values.length).toEqual(2)
-    expect(lombard.values.length).toEqual(6)
-    expect(ulloa.values.length).toEqual(5)
-    expect(filbert.values.length).toEqual(5)
-
-    expect(baker.values).toContain(jasmine.objectContaining({'number':'2101'}))
-    expect(baker.values).toContain(jasmine.objectContaining({'number':'1030'}))
+    await expectAsync(res).toBeResolvedTo(jasmine.objectContaining(expecteds['2664 BROADWAY']))
   })
 })
 
 describe('locate.searchAddress', function () {
-  it('should find the right address', function () {
+  it('should find the right address', async function () {
     let baker = SFLocator.searchAddress({
       number: '2101',
       street: 'BAKER',
       type: 'ST',
       zipcode: '94115'
     })
-    expect(baker).toEqual(jasmine.objectContaining({'eas baseid': '274772', 'cnn': '2624000', 'tractce10': '013400'}))
+    let expected = jasmine.objectContaining({'eas_baseid': '274772', 'cnn': '2624000', 'tractce10': '013400'})
+    await expectAsync(baker).toBeResolvedTo(expected)
 
   })
+
+  it('should error when a street does not exist in SF', async function () {
+    let res =  SFLocator.searchAddress({
+      number: '2101',
+      street: 'NONEXISTANTSTREET',
+      type: 'ST',
+      zipcode: '94115'
+    })
+    await expectAsync(res).toBeRejectedWithError('Street not in listing')
+  })
+  
 })
 
 // describe('locate.findMany', function () {

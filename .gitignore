@@ -2,3 +2,7 @@ data/
 geo/
 foo*
 output/
+node_modules
+.vscode
+.DS_Store
+*.log

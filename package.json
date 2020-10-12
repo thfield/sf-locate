@@ -5,19 +5,21 @@
   "license": "MIT",
   "dependencies": {
     "@turf/turf": "^5.1.6",
-    "csv": "^3.1.0",
+    "csv": "^5.3.2",
     "d3-collection": "^1.0.4",
     "json2csv": "^4.1.2",
     "ordinal": "^1.0.2",
     "parse-address": "^0.0.10",
+    "sqlite3": "^5.0.0",
     "uuid": "^3.2.1",
     "words-to-numbers": "^1.5.1"
   },
   "devDependencies": {
-    "jasmine": "^3.1.0"
+    "jasmine": "^3.6.0"
   },
   "scripts": {
     "test": "jasmine",
+    "testfoo": "jasmine spec/locatorSpec.js",
     "downloads": "./getgeo.sh && ./getdata.sh",
     "get-geo": "./getgeo.sh",
     "get-data": "./getdata.sh",

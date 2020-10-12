@@ -38,7 +38,9 @@ Run once
 This creates a lookup table of addresses in San Francisco which gets reused.  It will take a long time (like, 0.5-2hr or more, depending) to process all the addresses, because it is inefficient.
 
 Optional
-1. put additional (non-official) addresses into `additional-addresses.csv`, run `additional-munge.js`, copy those addresses into ./data/addressesProcessed.csv
+1. put additional (non-official) addresses into `additional-addresses.csv`
+1. run `additional-munge.js` 
+1. copy those addresses into ./data/addressesProcessed.csv
 
 ## tests
 Oh snap! I actually wrote tests?
@@ -89,3 +91,13 @@ see `example.js` for more (now with streams!)
 - use any geojson files to do geocoding for whatever boundaries desired
 - do this in Python, R, whatever
 - write some more tests
+
+
+## sqlite settings
+setup:
+```sql
+.mode csv
+.import data/addressesProcessed.csv sanfrancisco
+delete from sanfrancisco where street = 'UNKNOWN';
+delete from sanfrancisco where longitude = 0;
+```

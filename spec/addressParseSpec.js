@@ -158,7 +158,7 @@ describe('addressParse.standardize', function () {
 
   it('should throw an error if fed nonsense', function () {
     expect( function(){ addressParse.standardize('lorem ipsum st') })
-      .toThrow(new Error('input to method addressParse.standardize must be an address'))
+      .toThrow(new Error('input to method addressParse.standardize must be an address. Missing property street or number.'))
   })
 
   it('should throw an error if given not a string', function () {
