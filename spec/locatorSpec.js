@@ -1,7 +1,7 @@
 'use strict'
 
 const Locator = require('../locator.js')
-let SFLocator = new Locator(true) // pass true in constructor for "testing mode"
+let SFLocator = new Locator()
 
 let inputs = [
   {
@@ -533,6 +533,10 @@ describe ('locate.searchByNeighbors', function () {
   })
   it('should throw a helpful error when unable to return', async function () {
     await expectAsync( SFLocator.searchByNeighbors(notInEAS[2]) )
+          .toBeRejectedWith(new Error('Not locatable by neighboring addresses'))
+  })
+  it('should throw a helpful error when unable to return with nextDoor=true', async function () {
+    await expectAsync( SFLocator.searchByNeighbors({number: '1036', street: 'BUCHANAN', type: 'ST', zipcode: '94115'}, {nextDoor:true}) )
           .toBeRejectedWith(new Error('Not locatable by neighboring addresses'))
   })
   it('should find an address "next door" if asked', async function () {

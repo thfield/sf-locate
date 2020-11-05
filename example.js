@@ -8,7 +8,8 @@ const stringify = require('csv-stringify')
 const Locator = require('./locator')
 const addressParse = require('./lib/addressParse')
 const columns = ['eas baseid','cnn','address','zipcode','longitude','latitude','assemdist','bartdist','congdist','nhood','prec_2010','prec_2012','supdist','tractce10','number','number suffix','street','type','id','method']
-let SFLocator = new Locator(true)
+
+let SFLocator = new Locator()
 // the first record has to be one that is locatable for stringify to write all column headings
 
 // head -n 20 data/realaddresses.csv > data/somerealaddresses.csv
@@ -40,7 +41,7 @@ function stepOne (inputFile) {
   unmatchedstream.pipe(unmatched)
 
   let parser = parse({columns: true, delimiter: ','})
-  let transformer = transform(function (record, callback) {
+  let transformer = transform(async function (record, callback) {
     try {
       let std = addressParse.standardize(record.address)
       Object.assign(record, std)
@@ -53,13 +54,13 @@ function stepOne (inputFile) {
 
     try {
       if (streetsWithoutTypes.includes(record.street)){
-        located = SFLocator.findOne(record, {ignoreStreetType: true})
+        located = await SFLocator.findOne(record, {ignoreStreetType: true})
       } else {
-        located = SFLocator.findOne(record)
+        located = await SFLocator.findOne(record)
       }
 
       if (located.message === 'Address not found method findOne') {
-        located = SFLocator.searchByNeighbors(record)
+        located = await SFLocator.searchByNeighbors(record)
       }
 
       callback(null, located)
@@ -77,6 +78,7 @@ function stepOne (inputFile) {
     .pipe(output)
     .on('finish', () => {
       console.log(`saved to ${outputFile}`)
+      // cleanup()
       stepTwo(inputFile)
     })
 }
@@ -101,12 +103,12 @@ function stepTwo (inputFile) {
   unmatchedstream.pipe(unmatched)
 
   let parser = parse({columns: true, delimiter: ','})
-  let transformer = transform(function (record, callback) {
+  let transformer = transform(async function (record, callback) {
     try {
       if (record.err === 'Not an SF zip code' && record.city.toUpperCase() === "SAN FRANCISCO"){
-        located = SFLocator.findOne(record, {ignoreZip: true})
+        located = await SFLocator.findOne(record, {ignoreZip: true})
       } else if (record.err === 'Zip Code and Address do not match') {
-        located = SFLocator.findOne(record, {ignoreZipMismatch:true})
+        located = await SFLocator.findOne(record, {ignoreZipMismatch:true})
       }
 
       callback(null, located)
@@ -123,8 +125,13 @@ function stepTwo (inputFile) {
     .pipe(stringifier)
     .pipe(output)
     .on('finish', () => {
+      cleanup()
       console.log(`saved to ${outputFile}`)
       console.timeEnd('timer')
     })
 
+}
+
+function cleanup () {
+  SFLocator.close()
 }

@@ -258,22 +258,111 @@ let expecteds = {
   }
 }
 
-describe('addressParse.nextDoor', function () {
+describe('addressParse.NeighborSearch.nextDoor', function () {
   let address = {
     number: '355',
     street: 'OAK',
     type: 'ST'
   }
   it('should find the next highest street address implicitly', function () {
-    let res = addressParse.nextDoor(address)
+    let res = addressParse.NeighborSearch.nextDoor(address)
     expect(res).toEqual(expecteds['357 OAK ST'])
   })
   it('should find the next highest street address explicitly', function () {
-    let res = addressParse.nextDoor(address, 'up')
+    let res = addressParse.NeighborSearch.nextDoor(address, 'up')
     expect(res).toEqual(expecteds['357 OAK ST'])
   })
   it('should find the next lowest street address', function () {
-    let res = addressParse.nextDoor(address, 'down')
+    let res = addressParse.NeighborSearch.nextDoor(address, 'down')
     expect(res).toEqual(expecteds['353 OAK ST'])
   })
 })
+
+// describe('addressParse.NeighborSearch.getBlock', function () {
+//   it('should find a hundreds', function () {
+//     let res = addressParse.NeighborSearch.getBlock(146)
+//     expect(res).toEqual(100)
+//   })
+//   it('should find a hundreds (exact1)', function () {
+//     let res = addressParse.NeighborSearch.getBlock(200)
+//     expect(res).toEqual(200)
+//   })
+//   it('should find a hundreds (exact2)', function () {
+//     let res = addressParse.NeighborSearch.getBlock(100)
+//     expect(res).toEqual(100)
+//   })
+//   it('should find a hundreds (high)', function () {
+//     let res = addressParse.NeighborSearch.getBlock(299)
+//     expect(res).toEqual(200)
+//   })
+//   it('should find a hundreds (low)', function () {
+//     let res = addressParse.NeighborSearch.getBlock(101)
+//     expect(res).toEqual(100)
+//   })
+//   it('should find a tens', function () {
+//     let res = addressParse.NeighborSearch.getBlock(46)
+//     expect(res).toEqual(100)
+//   })
+//   it('should find a ones', function () {
+//     let res = addressParse.NeighborSearch.getBlock(4)
+//     expect(res).toEqual(100)
+//   })
+//   it('should find a thousands', function () {
+//     let res = addressParse.NeighborSearch.getBlock(1146)
+//     expect(res).toEqual(100)
+//   })
+// })
+
+// describe('addressParse.NeighborSearch.maxNeighborSearch', function () {
+//   it('should find one going up on the even side', function () {
+//     let res = addressParse.NeighborSearch.maxNeighborSearch(190, 'up')
+//     expect(res).toEqual(4)
+//   })
+//   it('should find one going up on the odd side', function () {
+//     let res = addressParse.NeighborSearch.maxNeighborSearch(191, 'up')
+//     expect(res).toEqual(4)
+//   })
+//   it('should find one going down on the even side', function () {
+//     let res = addressParse.NeighborSearch.maxNeighborSearch(110, 'down')
+//     expect(res).toEqual(5)
+//   })
+//   it('should find one going down on the odd side', function () {
+//     let res = addressParse.NeighborSearch.maxNeighborSearch(111, 'down')
+//     expect(res).toEqual(5)
+//   })
+
+//   it('should stop the search at a max odd', function () {
+//     let res = addressParse.NeighborSearch.maxNeighborSearch(199, 'up')
+//     expect(res).toEqual(0)
+//   })
+//   it('should stop the search at a max even', function () {
+//     let res = addressParse.NeighborSearch.maxNeighborSearch(198, 'up')
+//     expect(res).toEqual(0)
+//   })
+//   it('should stop the search at a min even', function () {
+//     let res = addressParse.NeighborSearch.maxNeighborSearch(100, 'down')
+//     expect(res).toEqual(0)
+//   })
+//   it('should stop the search at a min odd', function () {
+//     let res = addressParse.NeighborSearch.maxNeighborSearch(101, 'down')
+//     expect(res).toEqual(0)
+//   })
+
+//   it('should find the max even up', function () {
+//     let res = addressParse.NeighborSearch.maxNeighborSearch(100, 'up')
+//     expect(res).toEqual(49)
+//   })
+//   it('should find the max odd up', function () {
+//     let res = addressParse.NeighborSearch.maxNeighborSearch(101, 'up')
+//     expect(res).toEqual(49)
+//   })
+//   it('should find the max even down', function () {
+//     let res = addressParse.NeighborSearch.maxNeighborSearch(198, 'down')
+//     expect(res).toEqual(49)
+//   })
+//   it('should find the max odd down', function () {
+//     let res = addressParse.NeighborSearch.maxNeighborSearch(199, 'down')
+//     expect(res).toEqual(49)
+//   })
+  
+// })

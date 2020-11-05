@@ -24,6 +24,12 @@ class Locator {
     });
   }
 
+  close() {
+    let self = this
+    self.db.close()
+    console.log('Closed database connection.')
+  }
+
   get(sql, params = []) {
     let self = this
     return new Promise((resolve, reject) => {
@@ -176,10 +182,13 @@ class Locator {
     }
     
     if (options.nextDoor) {
+      console.log('inside nextDoor')
       if (neighbors.some(d => d.hasOwnProperty('address'))) {
         let located = neighbors.find(d => d.hasOwnProperty('address'))
         res = Object.assign({}, located, address)
         res.method = `match by neighbor address`
+      } else {
+        console.log('haskjdhf')
       }
     } else {
       if (neighbors.some(d => d instanceof Error)) {
@@ -244,14 +253,16 @@ class Locator {
 
     let res
     let i = 0
+  
+    let max = 4
     do {
       // add or subtract 2 to the address number
-      addr = addressParse.nextDoor(addr, upDown)
+      addr = addressParse.NeighborSearch.nextDoor(addr, upDown)
       res = await self.searchAddress(addr, options)
 
       if (res instanceof Error) { i++ }
       else { return res }
-    } while (i < 100)
+    } while (i < max)
 
     throw new Error('Nextdoor address not found')
   }
